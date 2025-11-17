@@ -1,0 +1,97 @@
+trigger:
+  branches:
+    include:
+      - develop
+      - main
+
+pr:
+  branches:
+    include:
+      - main
+
+pool:
+  name: FiapCloudGames
+
+variables:
+  buildConfiguration: "Release"
+
+stages:
+  - stage: Build
+    displayName: "Build Solution"
+    jobs:
+      - job: Build
+        steps:
+          - task: UseDotNet@2
+            displayName: "Install .NET SDK"
+            inputs:
+              packageType: "sdk"
+              version: "8.x"
+
+          - script: dotnet restore FiapCloudGames.sln
+            displayName: "Restore NuGet packages"
+
+          - task: DotNetCoreCLI@2
+            displayName: "Build Solution"
+            inputs:
+              azureSubscription: 'Azure for Students(a823f9d1-e0f4-4b84-b935-0e859c9f64b3)'
+              command: 'build'
+              projects: 'FiapCloudGames.sln'
+              arguments: '--configuration $(buildConfiguration) --no-restore'
+
+          - publish: $(Build.SourcesDirectory)/tests/FiapCloudGames.Tests/bin/Release/net8.0/
+            displayName: "Publish Binaries"
+            artifact: fiap-cloud-games-binaries
+
+  - stage: Test
+    displayName: "Run Tests"
+    dependsOn: Build
+    jobs:
+      - job: Test
+        steps:
+          - task: DotNetCoreCLI@2
+            displayName: "Run Unit Tests"
+            inputs:
+              azureSubscription: 'Azure for Students(a823f9d1-e0f4-4b84-b935-0e859c9f64b3)'
+              command: 'test'
+              projects: '..\test-binaries\FiapCloudGames.Tests.dll'
+              arguments: '--no-build --collect:"XPlat Code Coverage"'
+              testRunTitle: 'Test'
+
+  - stage: Publish
+    displayName: "Publish Artifacts"
+    dependsOn: Test
+    condition: and(succeeded(), or(eq(variables['Build.SourceBranch'], 'refs/heads/main'), eq(variables['Build.Reason'], 'Manual')))
+    jobs:
+      - job: Publish
+        steps:
+            - task: Docker@2
+              displayName: 'Build Docker image'
+              inputs:
+                command: build
+                repository: fiap-cloud-games-api
+                Dockerfile: src/FiapCloudGames.Api/Dockerfile
+                tags: |
+                  latest
+                  $(Build.BuildId)
+                buildContext: .
+                containerRegistry: 'fiapcloudgames-acr-connection'
+                buildArguments: --no-cache
+
+            - task: Docker@2
+              displayName: 'Push Docker image to ACR'
+              inputs:
+                command: push
+                repository: fiap-cloud-games-api
+                tags: |
+                  latest
+                  $(Build.BuildId)
+                containerRegistry: 'fiapcloudgames-acr-connection'
+
+            - task: AzureCLI@2
+              displayName: 'Set App Service Plan to 2 Instances'
+              inputs:
+                azureSubscription: 'Azure for Students(a823f9d1-e0f4-4b84-b935-0e859c9f64b3)'
+                scriptType: 'ps'
+                scriptLocation: 'inlineScript'
+                inlineScript: |
+                  az appservice plan update --name ASP-rgfiapcloudgames-85ab --resource-group rg-fiapcloudgames --number-of-workers 2
