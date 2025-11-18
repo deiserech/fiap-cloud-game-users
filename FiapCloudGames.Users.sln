@@ -5,13 +5,13 @@ VisualStudioVersion = 17.13.35806.99
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Source", "Source", "{02EA681E-C7D8-13C7-8484-4AC65E1B71E8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FiapCloudGames.Api", "src\FiapCloudGames.Api\FiapCloudGames.Api.csproj", "{73AA1E47-0CB7-4FA1-7D42-4630D287E3F2}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FiapCloudGames.Users.Api", "src\FiapCloudGames.Api\FiapCloudGames.Users.Api.csproj", "{73AA1E47-0CB7-4FA1-7D42-4630D287E3F2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FiapCloudGames.Application", "src\FiapCloudGames.Application\FiapCloudGames.Application.csproj", "{9F0FD116-92EC-76D9-2DA5-0FA7AD55A61F}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FiapCloudGames.Users.Application", "src\FiapCloudGames.Application\FiapCloudGames.Users.Application.csproj", "{9F0FD116-92EC-76D9-2DA5-0FA7AD55A61F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FiapCloudGames.Infrastructure", "src\FiapCloudGames.Infrastructure\FiapCloudGames.Infrastructure.csproj", "{C19B8E6C-E03D-8C30-8791-E4F911C3C48B}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FiapCloudGames.Users.Infrastructure", "src\FiapCloudGames.Infrastructure\FiapCloudGames.Users.Infrastructure.csproj", "{C19B8E6C-E03D-8C30-8791-E4F911C3C48B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FiapCloudGames.Domain", "src\FiapCloudGames.Domain\FiapCloudGames.Domain.csproj", "{74A46DBB-1420-3F75-2095-D32CD2E4531A}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FiapCloudGames.Users.Domain", "src\FiapCloudGames.Domain\FiapCloudGames.Users.Domain.csproj", "{74A46DBB-1420-3F75-2095-D32CD2E4531A}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Others", "Others", "{691BC223-F304-4D08-AD85-39DC89E84C44}"
 	ProjectSection(SolutionItems) = preProject
@@ -22,7 +22,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{0AA334AA
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FiapCloudGames.Tests", "tests\FiapCloudGames.Tests\FiapCloudGames.Tests.csproj", "{4E9B57A7-7BF4-2349-D388-EA37A9C155D8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FiapCloudGames.Shared", "src\FiapCloudGames.Shared\FiapCloudGames.Shared.csproj", "{8E9A6D80-81C4-1C45-A752-8E561BE5B5EA}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FiapCloudGames.Users.Shared", "src\FiapCloudGames.Shared\FiapCloudGames.Users.Shared.csproj", "{8E9A6D80-81C4-1C45-A752-8E561BE5B5EA}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

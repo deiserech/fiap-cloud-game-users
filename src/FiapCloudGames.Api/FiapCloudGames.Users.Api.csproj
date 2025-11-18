@@ -12,9 +12,9 @@
   </PropertyGroup>
 
 	<ItemGroup>
-		<ProjectReference Include="..\FiapCloudGames.Application\FiapCloudGames.Application.csproj" />
-		<ProjectReference Include="..\FiapCloudGames.Infrastructure\FiapCloudGames.Infrastructure.csproj" />
-		<ProjectReference Include="..\FiapCloudGames.Shared\FiapCloudGames.Shared.csproj" />
+		<ProjectReference Include="..\FiapCloudGames.Application\FiapCloudGames.Users.Application.csproj" />
+		<ProjectReference Include="..\FiapCloudGames.Infrastructure\FiapCloudGames.Users.Infrastructure.csproj" />
+		<ProjectReference Include="..\FiapCloudGames.Shared\FiapCloudGames.Users.Shared.csproj" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -24,6 +24,7 @@
 		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
 		<PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.21.0" />
+		<PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
 		<PackageReference Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" Version="1.13.1" />
 		<PackageReference Include="OpenTelemetry.Extensions.Hosting" Version="1.13.1" />
 		<PackageReference Include="OpenTelemetry.Instrumentation.AspNetCore" Version="1.12.0" />

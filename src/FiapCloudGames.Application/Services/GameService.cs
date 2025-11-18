@@ -17,13 +17,7 @@ namespace FiapCloudGames.Application.Services
             _logger = logger;
         }
 
-        public async Task<IEnumerable<GameDto>> GetAllAsync()
-        {
-            var games = await _repo.GetAllAsync();
-            return games.Select(MapToDto);
-        }
-
-        public async Task<GameDto?> GetByIdAsync(int id)
+        public async Task<GameDto?> GetByIdAsync(Guid id)
         {
             var game = await _repo.GetByIdAsync(id);
             return game == null ? null : MapToDto(game);
@@ -42,20 +36,14 @@ namespace FiapCloudGames.Application.Services
             return MapToDto(created);
         }
 
-        private static GameDto MapToDto(Game game) => new GameDto
+        private static GameDto MapToDto(Game game) => new()
         {
-            Id = game.Id,
             Title = game.Title,
-            Description = game.Description,
-            Price = game.Price
         };
 
-        private static Game MapToEntity(GameDto dto) => new Game
+        private static Game MapToEntity(GameDto dto) => new()
         {
-            Id = dto.Id,
             Title = dto.Title,
-            Description = dto.Description,
-            Price = dto.Price
         };
     }
 }

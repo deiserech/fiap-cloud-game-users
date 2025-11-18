@@ -37,8 +37,7 @@ namespace FiapCloudGames.Tests.Controllers
             {
                 Token = "valid-jwt-token",
                 Email = "test@example.com",
-                Name = "Test User",
-                UserId = 1
+                Name = "Test User"
             };
 
             _mockAuthService.Setup(s => s.Login(loginDto)).ReturnsAsync(expectedResponse);
@@ -120,8 +119,7 @@ namespace FiapCloudGames.Tests.Controllers
             {
                 Token = "valid-jwt-token",
                 Email = "newuser@example.com",
-                Name = "New User",
-                UserId = 1
+                Name = "New User"
             };
 
             _mockAuthService.Setup(s => s.Register(registerDto)).ReturnsAsync(expectedResponse);
@@ -264,8 +262,7 @@ namespace FiapCloudGames.Tests.Controllers
             {
                 Token = "admin-jwt-token",
                 Email = "admin@example.com",
-                Name = "Admin User",
-                UserId = 2
+                Name = "Admin User"
             };
 
             _mockAuthService.Setup(s => s.Register(registerDto)).ReturnsAsync(expectedResponse);

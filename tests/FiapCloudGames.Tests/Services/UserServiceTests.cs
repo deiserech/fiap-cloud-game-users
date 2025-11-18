@@ -28,10 +28,10 @@ namespace FiapCloudGames.Tests.Services
         public async Task TaskObterPorId_WithExistingUser_ShouldReturnUser()
         {
             // Arrange
-            var userId = 123;
+            var userId = Guid.NewGuid();
             var expectedUser = new User
             {
-                Id = 123,
+                Id = Guid.NewGuid(),
                 Name = "Test User",
                 Email = "test@example.com",
                 Role = UserRole.User,
@@ -59,7 +59,7 @@ namespace FiapCloudGames.Tests.Services
         public async Task TaskObterPorId_WithNonExistingUser_ShouldReturnNull()
         {
             // Arrange
-            var userId = 999;
+            var userId = Guid.NewGuid();
             _mockUserRepository.Setup(repo => repo.GetByIdAsync(userId)).ReturnsAsync((User?)null);
 
             // Act
@@ -74,10 +74,10 @@ namespace FiapCloudGames.Tests.Services
         public async Task TaskObterPorId_WithAdministratorUser_ShouldReturnCorrectRole()
         {
             // Arrange
-            var userId = 123;
+            var userId = Guid.NewGuid();
             var adminUser = new User
             {
-                Id = 456,
+                Id = Guid.NewGuid(),
                 Name = "Admin User",
                 Email = "admin@example.com",
                 Role = UserRole.Admin,

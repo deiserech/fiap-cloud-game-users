@@ -5,8 +5,8 @@ namespace FiapCloudGames.Application.Interfaces.Services
 {
     public interface IUserService
     {
-        Task<User?> GetByIdAsync(int id);
+        Task<User?> GetByIdAsync(Guid id);
         Task<User> CreateUserAsync(RegisterDto user);
-        Task<bool> ExistsAsync(int id);
+        Task<bool> ExistsAsync(Guid id);
     }
 }

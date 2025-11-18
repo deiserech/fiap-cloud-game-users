@@ -17,7 +17,7 @@ namespace FiapCloudGames.Infrastructure.Repositories
             _logger = logger;
         }
 
-        public async Task<Game?> GetByIdAsync(int id)
+        public async Task<Game?> GetByIdAsync(Guid id)
         {
             _logger.LogDebug("Buscando jogo por ID: {Id}", id);
             return await _context.Games
@@ -40,7 +40,7 @@ namespace FiapCloudGames.Infrastructure.Repositories
             return await GetByIdAsync(game.Id) ?? game;
         }
 
-        public async Task DeleteAsync(int id)
+        public async Task RemoveAsync(Guid id)
         {
             _logger.LogDebug("Deletando jogo por ID: {Id}", id);
             var game = await _context.Games.FindAsync(id);
@@ -51,7 +51,7 @@ namespace FiapCloudGames.Infrastructure.Repositories
             }
         }
 
-        public async Task<bool> ExistsAsync(int id)
+        public async Task<bool> ExistsAsync(Guid id)
         {
             return await _context.Games.AnyAsync(g => g.Id == id);
         }

@@ -59,7 +59,7 @@ namespace FiapCloudGames.Tests.Services
 
             var user = new User
             {
-                Id = 1,
+                Id = Guid.NewGuid(),
                 Name = "Test User",
                 Email = "test@example.com",
                 Role = UserRole.User
@@ -75,7 +75,6 @@ namespace FiapCloudGames.Tests.Services
             result.Should().NotBeNull();
             result!.Email.Should().Be(user.Email);
             result.Name.Should().Be(user.Name);
-            result.UserId.Should().Be(user.Id);
             result.Token.Should().NotBeNullOrEmpty();
 
             // Verify JWT token
@@ -117,7 +116,7 @@ namespace FiapCloudGames.Tests.Services
 
             var user = new User
             {
-                Id = 1,
+                Id = Guid.NewGuid(),
                 Name = "Test User",
                 Email = "test@example.com",
                 Role = UserRole.User
@@ -146,7 +145,7 @@ namespace FiapCloudGames.Tests.Services
 
             var adminUser = new User
             {
-                Id = 2,
+                Id = Guid.NewGuid(),
                 Name = "Admin User",
                 Email = "admin@example.com",
                 Role = UserRole.Admin
@@ -162,7 +161,6 @@ namespace FiapCloudGames.Tests.Services
             result.Should().NotBeNull();
             result!.Email.Should().Be(adminUser.Email);
             result.Name.Should().Be(adminUser.Name);
-            result.UserId.Should().Be(adminUser.Id);
             result.Token.Should().NotBeNullOrEmpty();
         }
         #endregion
@@ -187,7 +185,7 @@ namespace FiapCloudGames.Tests.Services
             _mockUserRepository.Setup(repo => repo.CreateAsync(It.IsAny<User>()))
                 .ReturnsAsync((User u) =>
                 {
-                    u.Id = 10; // Simula atribuição de Id pelo repositório
+                    u.Id = Guid.NewGuid(); 
                     return u;
                 });
 
@@ -198,7 +196,6 @@ namespace FiapCloudGames.Tests.Services
             result.Should().NotBeNull();
             result!.Email.Should().Be(registerDto.Email);
             result.Name.Should().Be(registerDto.Name);
-            result.UserId.Should().Be(10); // Agora espera o Id atribuído
             result.Token.Should().NotBeNullOrEmpty();
 
             // Verify JWT token
@@ -250,7 +247,7 @@ namespace FiapCloudGames.Tests.Services
                 .Callback<User>(user => capturedUser = user)
                 .ReturnsAsync((User u) =>
                 {
-                    u.Id = 20;
+                    u.Id = Guid.NewGuid();
                     return u;
                 });
 
@@ -284,7 +281,7 @@ namespace FiapCloudGames.Tests.Services
                 .Callback<User>(user => capturedUser = user)
                 .ReturnsAsync((User u) =>
                 {
-                    u.Id = 30;
+                    u.Id = Guid.NewGuid();
                     return u;
                 });
 

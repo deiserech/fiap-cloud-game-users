@@ -29,10 +29,10 @@ namespace FiapCloudGames.Tests.Controllers
         public async Task GetUser_WithExistingUser_ShouldReturnOkWithUserData()
         {
             // Arrange
-            var userId = 123;
+            var userId = Guid.NewGuid();
             var expectedUser = new User
             {
-                Id = 123,
+                Id = Guid.NewGuid(),
                 Name = "Test User",
                 Email = "test@example.com",
                 Role = UserRole.User
@@ -74,7 +74,7 @@ namespace FiapCloudGames.Tests.Controllers
         public async Task GetUser_WithNonExistingUser_ShouldReturnNotFound()
         {
             // Arrange
-            var userId = 999;
+            var userId = Guid.NewGuid();
             _mockUserService.Setup(s => s.GetByIdAsync(userId)).ReturnsAsync((User?)null);
 
             // Act
@@ -89,10 +89,10 @@ namespace FiapCloudGames.Tests.Controllers
         public async Task GetUser_WithAdministratorUser_ShouldReturnCorrectRole()
         {
             // Arrange
-            var userId = 456;
+            var userId = Guid.NewGuid();
             var adminUser = new User
             {
-                Id = 456,
+                Id = Guid.NewGuid(),
                 Name = "Admin User",
                 Email = "admin@example.com",
                 Role = UserRole.Admin
@@ -120,10 +120,10 @@ namespace FiapCloudGames.Tests.Controllers
         public async Task GetProfile_WithAuthenticatedUser_ShouldReturnOkWithUserProfile()
         {
             // Arrange
-            var userId = 123;
+            var userId = Guid.NewGuid();
             var expectedUser = new User
             {
-                Id = 123,
+                Id = Guid.NewGuid(),
                 Name = "Authenticated User",
                 Email = "auth@example.com",
                 Role = UserRole.User
@@ -191,14 +191,14 @@ namespace FiapCloudGames.Tests.Controllers
 
             // Assert
             result.Should().BeOfType<UnauthorizedResult>();
-            _mockUserService.Verify(s => s.GetByIdAsync(It.IsAny<int>()), Times.Never);
+            _mockUserService.Verify(s => s.GetByIdAsync(It.IsAny<Guid>()), Times.Never);
         }
 
         [Fact]
         public async Task GetProfile_WithAuthenticatedUserButUserNotFound_ShouldReturnNotFound()
         {
             // Arrange
-            var userId = 999;
+            var userId = Guid.NewGuid();
             var claims = new List<Claim>
             {
                 new Claim(ClaimTypes.NameIdentifier, userId.ToString())
@@ -248,7 +248,7 @@ namespace FiapCloudGames.Tests.Controllers
 
             // Assert
             result.Should().BeOfType<UnauthorizedResult>();
-            _mockUserService.Verify(s => s.GetByIdAsync(It.IsAny<int>()), Times.Never);
+            _mockUserService.Verify(s => s.GetByIdAsync(It.IsAny<Guid>()), Times.Never);
         }
 
         #endregion
@@ -269,7 +269,7 @@ namespace FiapCloudGames.Tests.Controllers
 
             var createdUser = new User
             {
-                Id = 1,
+                Id = Guid.NewGuid(),
                 Name = user.Name,
                 Email = user.Email,
                 Role = user.Role
@@ -321,7 +321,7 @@ namespace FiapCloudGames.Tests.Controllers
 
             var createdUser = new User
             {
-                Id = 2,
+                Id = Guid.NewGuid(),
                 Name = user.Name,
                 Email = user.Email,
                 Role = user.Role
