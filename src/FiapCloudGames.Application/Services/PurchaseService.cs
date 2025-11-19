@@ -18,7 +18,7 @@ namespace FiapCloudGames.Users.Application.Services
 
         public async Task ProcessAsync(PurchaseCompletedEvent message, CancellationToken cancellationToken = default)
         {
-            var libraries = await _libraryService.GetLibraryByPurchaseGameAndUserAsync(message.PurchaseId, message.UserId, message.GameId);
+            var libraries = await _libraryService.GetLibraryByPurchaseGameAndUserAsync(message.PurchaseId, message.GameId, message.UserId);
             if (libraries is not null)
             {
                 _logger.LogWarning("library still exists: {PurchaseId}, {GameId}, {UserId}", message.PurchaseId, message.GameId, message.UserId);

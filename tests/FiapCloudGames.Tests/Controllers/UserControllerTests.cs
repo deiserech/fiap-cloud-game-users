@@ -349,6 +349,31 @@ namespace FiapCloudGames.Tests.Controllers
 
             _mockUserService.Verify(s => s.CreateUserAsync(user), Times.Once);
         }
+
+        [Fact]
+        public async Task CriarUser_WithInvalidModelState_ShouldReturnBadRequest()
+        {
+            // Arrange
+            var user = new RegisterDto
+            {
+                Name = "", 
+                Email = "invalid-email",
+                Role = UserRole.User,
+                Password = "short"
+            };
+
+            _userController.ModelState.AddModelError("Name", "O nome é obrigatório.");
+            _userController.ModelState.AddModelError("Email", "Formato de e-mail inválido.");
+            _userController.ModelState.AddModelError("Password", "A senha deve ter entre 8 e 128 caracteres.");
+
+            // Act
+            var result = await _userController.CreateUser(user);
+
+            // Assert
+            result.Should().BeOfType<BadRequestObjectResult>();
+            _mockUserService.Verify(s => s.CreateUserAsync(It.IsAny<RegisterDto>()), Times.Never);
+        }
+
         #endregion
 
     }

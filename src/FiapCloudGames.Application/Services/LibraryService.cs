@@ -24,14 +24,6 @@ namespace FiapCloudGames.Users.Application.Services
 
         public async Task<IEnumerable<Library>> GetUserLibraryAsync(Guid userId)
         {
-            using var activity = Tracing.ActivitySource.StartActivity($"{nameof(LibraryService)}.GetUserLibraryAsync");
-            _logger.LogInformation("Buscando biblioteca do usuário: {UserId}", userId);
-            if (!await _userService.ExistsAsync(userId))
-            {
-                _logger.LogWarning("Usuário não encontrado: {UserId}", userId);
-                throw new ArgumentException("Usuário não encontrado.");
-            }
-
             return await _libraryRepository.GetByUserIdAsync(userId);
         }
 

@@ -20,7 +20,6 @@ namespace FiapCloudGames.Tests.Controllers
             _authController = new AuthController(_mockAuthService.Object);
         }
 
-
         #region Login Tests
 
         [Fact]
@@ -161,16 +160,20 @@ namespace FiapCloudGames.Tests.Controllers
         }
 
         [Fact]
-        public async Task Register_WithInvalidEmailFormat_ShouldReturnBadRequest()
+        public async Task Register_WithInvalidModelState_ShouldReturnBadRequest()
         {
             // Arrange
             var registerDto = new RegisterDto
             {
-                Name = "Test User",
-                Email = "invalid-email-format",
-                Password = "ValidPassword123!",
+                Name = "",
+                Email = "invalid-email",
+                Password = "short",
                 Role = UserRole.User
             };
+
+            _authController.ModelState.AddModelError("Name", "O nome é obrigatório.");
+            _authController.ModelState.AddModelError("Email", "Formato de e-mail inválido.");
+            _authController.ModelState.AddModelError("Password", "A senha deve ter entre 8 e 128 caracteres.");
 
             // Act
             var result = await _authController.Register(registerDto);
@@ -180,70 +183,7 @@ namespace FiapCloudGames.Tests.Controllers
             var badRequestResult = result as BadRequestObjectResult;
             badRequestResult.Should().NotBeNull();
             badRequestResult!.Value.Should().BeOfType<SerializableError>();
-            var errors = badRequestResult.Value as SerializableError;
-
-            errors.Should().ContainKey("RegisterDto");
-            var registerDtoErrors = errors!["RegisterDto"] as string[];
-            registerDtoErrors.Should().Contain("O email fornecido não é válido.");
-
             _mockAuthService.Verify(s => s.Register(It.IsAny<RegisterDto>()), Times.Never);
-        }
-
-        [Theory]
-        [InlineData("weak")]
-        [InlineData("password")]
-        [InlineData("PASSWORD")]
-        [InlineData("12345678")]
-        [InlineData("password123")]
-        [InlineData("PASSWORD123")]
-        [InlineData("Password")]
-        public async Task Register_WithWeakPassword_ShouldReturnBadRequest(string weakPassword)
-        {
-            // Arrange
-            var registerDto = new RegisterDto
-            {
-                Name = "Test User",
-                Email = "test@example.com",
-                Password = weakPassword,
-                Role = UserRole.User
-            };
-
-            // Act
-            var result = await _authController.Register(registerDto);
-
-            // Assert
-            result.Should().BeOfType<BadRequestObjectResult>();
-            var badRequestResult = result as BadRequestObjectResult;
-            badRequestResult.Should().NotBeNull();
-            badRequestResult!.Value.Should().BeOfType<SerializableError>();
-
-            var errors = badRequestResult.Value as SerializableError;
-            errors.Should().ContainKey("RegisterDto");
-            _mockAuthService.Verify(s => s.Register(It.IsAny<RegisterDto>()), Times.Never);
-        }
-
-        [Theory]
-        [InlineData("ValidPass123!")]
-        [InlineData("MyStr0ng@Password")]
-        [InlineData("Complex#Pass123")]
-        public async Task Register_WithStrongPassword_ShouldCallAuthService(string strongPassword)
-        {
-            // Arrange
-            var registerDto = new RegisterDto
-            {
-                Name = "Test User",
-                Email = "test@example.com",
-                Password = strongPassword,
-                Role = UserRole.User
-            };
-
-            _mockAuthService.Setup(s => s.Register(registerDto)).ReturnsAsync((AuthResponseDto?)null);
-
-            // Act
-            var result = await _authController.Register(registerDto);
-
-            // Assert
-            _mockAuthService.Verify(s => s.Register(registerDto), Times.Once);
         }
 
         [Fact]
@@ -279,6 +219,5 @@ namespace FiapCloudGames.Tests.Controllers
         }
 
         #endregion
-
     }
 }

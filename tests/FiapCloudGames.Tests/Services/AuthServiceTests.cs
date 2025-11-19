@@ -297,5 +297,82 @@ namespace FiapCloudGames.Tests.Services
         }
 
         #endregion
+
+        [Fact]
+        public async Task Login_WithIncorrectPassword_ShouldReturnNull()
+        {
+            // Arrange
+            var loginDto = new LoginDto
+            {
+                Email = "test@example.com",
+                Password = "wrongpassword"
+            };
+
+            var user = new User
+            {
+                Id = Guid.NewGuid(),
+                Name = "Test User",
+                Email = "test@example.com",
+                Role = UserRole.User
+            };
+            user.SetPassword("correctpassword");
+
+            _mockUserRepository.Setup(repo => repo.GetByEmailAsync(loginDto.Email)).ReturnsAsync(user);
+
+            // Act
+            var result = await _authService.Login(loginDto);
+
+            // Assert
+            result.Should().BeNull();
+            _mockUserRepository.Verify(repo => repo.GetByEmailAsync(loginDto.Email), Times.Once);
+        }
+
+        [Fact]
+        public async Task Register_WithExistingEmail_ShouldNotCallCreateAsync()
+        {
+            // Arrange
+            var registerDto = new RegisterDto
+            {
+                Name = "Test User",
+                Email = "existing@example.com",
+                Password = "StrongPassword123!",
+                Role = UserRole.User
+            };
+
+            _mockUserRepository.Setup(repo => repo.EmailExistsAsync(registerDto.Email)).ReturnsAsync(true);
+
+            // Act
+            var result = await _authService.Register(registerDto);
+
+            // Assert
+            result.Should().BeNull();
+            _mockUserRepository.Verify(repo => repo.CreateAsync(It.IsAny<User>()), Times.Never);
+        }
+
+        [Fact]
+        public async Task Register_ShouldHashPasswordBeforeSaving()
+        {
+            // Arrange
+            var registerDto = new RegisterDto
+            {
+                Name = "Test User",
+                Email = "newuser@example.com",
+                Password = "StrongPassword123!",
+                Role = UserRole.User
+            };
+
+            _mockUserRepository.Setup(repo => repo.EmailExistsAsync(registerDto.Email)).ReturnsAsync(false);
+            _mockUserRepository.Setup(repo => repo.CreateAsync(It.IsAny<User>()))
+                .ReturnsAsync((User u) => u);
+
+            // Act
+            var result = await _authService.Register(registerDto);
+
+            // Assert
+            result.Should().NotBeNull();
+            _mockUserRepository.Verify(repo => repo.CreateAsync(It.Is<User>(u =>
+                u.PasswordHash != null && u.PasswordHash != registerDto.Password)), Times.Once);
+        }
+
     }
 }

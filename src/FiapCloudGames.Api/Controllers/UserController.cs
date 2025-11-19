@@ -65,10 +65,12 @@ namespace FiapCloudGames.Users.Api.Controllers
         public async Task<IActionResult> GetProfile()
         {
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            if (string.IsNullOrEmpty(userId)) return Unauthorized();
+            if (string.IsNullOrEmpty(userId)) 
+                return Unauthorized();
 
             var user = await _service.GetByIdAsync(Guid.Parse(userId));
-            if (user == null) return NotFound();
+            if (user == null) 
+                return NotFound();
 
             return Ok(new
             {
@@ -92,7 +94,11 @@ namespace FiapCloudGames.Users.Api.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> CreateUser([FromBody] RegisterDto userDto)
         {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
             var user = await _service.CreateUserAsync(userDto);
+
             return CreatedAtAction(nameof(CreateUser), new { id = user.Id }, new
             {
                 user.Id,

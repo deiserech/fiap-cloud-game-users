@@ -6,6 +6,7 @@ using FiapCloudGames.Users.Domain.Interfaces.Repositories;
 using FiapCloudGames.Users.Domain.Enums;
 using FiapCloudGames.Users.Domain.Entities;
 using FiapCloudGames.Users.Application.Services;
+using FiapCloudGames.Users.Application.DTOs;
 
 namespace FiapCloudGames.Tests.Services
 {
@@ -96,6 +97,82 @@ namespace FiapCloudGames.Tests.Services
         }
 
         #endregion
+
+        #region ExistsAsync Tests
+
+        [Fact]
+        public async Task ExistsAsync_WithExistingUser_ShouldReturnTrue()
+        {
+            // Arrange
+            var userId = Guid.NewGuid();
+            _mockUserRepository.Setup(repo => repo.ExistsAsync(userId)).ReturnsAsync(true);
+
+            // Act
+            var result = await _userService.ExistsAsync(userId);
+
+            // Assert
+            result.Should().BeTrue();
+            _mockUserRepository.Verify(repo => repo.ExistsAsync(userId), Times.Once);
+        }
+
+        [Fact]
+        public async Task ExistsAsync_WithNonExistingUser_ShouldReturnFalse()
+        {
+            // Arrange
+            var userId = Guid.NewGuid();
+            _mockUserRepository.Setup(repo => repo.ExistsAsync(userId)).ReturnsAsync(false);
+
+            // Act
+            var result = await _userService.ExistsAsync(userId);
+
+            // Assert
+            result.Should().BeFalse();
+            _mockUserRepository.Verify(repo => repo.ExistsAsync(userId), Times.Once);
+        }
+
+        #endregion
+
+        #region CreateUserAsync Tests
+
+        [Fact]
+        public async Task CreateUserAsync_ShouldCreateUserAndReturnCreatedUser()
+        {
+            // Arrange
+            var registerDto = new RegisterDto
+            {
+                Name = "New User",
+                Email = "newuser@example.com",
+                Password = "StrongPassword123!",
+                Role = UserRole.User
+            };
+
+            var createdUser = new User
+            {
+                Id = Guid.NewGuid(),
+                Name = registerDto.Name,
+                Email = registerDto.Email,
+                Role = registerDto.Role,
+                PasswordHash = "hashedpassword"
+            };
+
+            _mockUserRepository.Setup(repo => repo.CreateAsync(It.IsAny<User>())).ReturnsAsync(createdUser);
+
+            // Act
+            var result = await _userService.CreateUserAsync(registerDto);
+
+            // Assert
+            result.Should().NotBeNull();
+            result.Name.Should().Be(registerDto.Name);
+            result.Email.Should().Be(registerDto.Email);
+            result.Role.Should().Be(registerDto.Role);
+            _mockUserRepository.Verify(repo => repo.CreateAsync(It.Is<User>(u =>
+                u.Name == registerDto.Name &&
+                u.Email == registerDto.Email &&
+                u.Role == registerDto.Role)), Times.Once);
+        }
+
+        #endregion
+
 
     }
 }
