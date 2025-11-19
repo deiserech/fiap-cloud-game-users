@@ -1,17 +1,40 @@
-namespace FiapCloudGames.Api
-{
-    public class Program
-    {
-        public static void Main(string[] args)
-        {
-            CreateHostBuilder(args).Build().Run();
-        }
+using FiapCloudGames.Users.Api.Extensions;
+using FiapCloudGames.Users.Api.Middlewares;
+using FiapCloudGames.Users.Application.Interfaces.Services;
+using FiapCloudGames.Users.Application.Services;
 
-        public static IHostBuilder CreateHostBuilder(string[] args) =>
-            Host.CreateDefaultBuilder(args)
-                .ConfigureWebHostDefaults(webBuilder =>
-                {
-                    webBuilder.UseStartup<Startup>();
-                });
-    }
+var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddControllers();
+builder.Services.AddEndpointsApiExplorer();
+
+builder.Services.AddFiapCloudGamesSwagger();
+
+builder.Services.AddFiapCloudGamesOpenTelemetry();
+
+builder.Services.AddFiapCloudGamesJwtAuthentication(builder.Configuration);
+
+builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IGameService, GameService>();
+builder.Services.AddScoped<ILibraryService, LibraryService>();
+builder.Services.AddScoped<IPurchaseService, PurchaseService>();
+builder.Services.AddScoped<IAuthService, AuthService>();
+
+
+var app = builder.Build();
+
+app.UseMiddleware<ErrorHandlingMiddleware>();
+app.UseMiddleware<TracingEnrichmentMiddleware>();
+
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI();
 }
+
+app.UseAuthentication();
+app.UseAuthorization();
+
+app.MapControllers();
+
+app.Run();
