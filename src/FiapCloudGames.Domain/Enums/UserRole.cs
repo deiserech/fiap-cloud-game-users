@@ -1,4 +1,4 @@
-namespace FiapCloudGames.Domain.Enums
+namespace FiapCloudGames.Users.Domain.Enums
 {
     public enum UserRole
     {

@@ -1,11 +1,11 @@
-using FiapCloudGames.Application.Services;
-using FiapCloudGames.Domain.Entities;
-using FiapCloudGames.Domain.Enums;
-using FiapCloudGames.Domain.Interfaces.Repositories;
 using FluentAssertions;
 using Moq;
 using Xunit;
-using Microsoft.Extensions.Logging; 
+using Microsoft.Extensions.Logging;
+using FiapCloudGames.Users.Domain.Interfaces.Repositories;
+using FiapCloudGames.Users.Domain.Enums;
+using FiapCloudGames.Users.Domain.Entities;
+using FiapCloudGames.Users.Application.Services;
 
 namespace FiapCloudGames.Tests.Services
 {

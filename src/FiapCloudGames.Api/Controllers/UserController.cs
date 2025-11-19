@@ -1,10 +1,10 @@
 using System.Security.Claims;
-using FiapCloudGames.Application.DTOs;
-using FiapCloudGames.Application.Interfaces.Services;
+using FiapCloudGames.Users.Application.DTOs;
+using FiapCloudGames.Users.Application.Interfaces.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace FiapCloudGames.Api.Controllers
+namespace FiapCloudGames.Users.Api.Controllers
 {
     /// <summary>
     /// Controller responsável pelo gerenciamento de usuários

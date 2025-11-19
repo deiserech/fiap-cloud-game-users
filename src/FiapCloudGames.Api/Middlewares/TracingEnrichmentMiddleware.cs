@@ -1,8 +1,6 @@
-using Microsoft.AspNetCore.Http;
 using System.Diagnostics;
-using System.Threading.Tasks;
 
-namespace FiapCloudGames.Api.Middlewares
+namespace FiapCloudGames.Users.Api.Middlewares
 {
     public class TracingEnrichmentMiddleware
     {

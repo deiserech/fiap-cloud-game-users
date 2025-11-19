@@ -1,16 +1,16 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using FiapCloudGames.Application.DTOs;
-using FiapCloudGames.Application.Interfaces.Services;
-using FiapCloudGames.Domain.Entities;
-using FiapCloudGames.Domain.Interfaces.Repositories;
-using FiapCloudGames.Shared.Tracing;
+using FiapCloudGames.Users.Application.DTOs;
+using FiapCloudGames.Users.Application.Interfaces.Services;
+using FiapCloudGames.Users.Domain.Entities;
+using FiapCloudGames.Users.Domain.Interfaces.Repositories;
+using FiapCloudGames.Users.Shared.Tracing;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 
-namespace FiapCloudGames.Application.Services
+namespace FiapCloudGames.Users.Application.Services
 {
     public class AuthService : IAuthService
     {

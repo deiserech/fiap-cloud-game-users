@@ -1,10 +1,10 @@
-using FiapCloudGames.Domain.Entities;
-using FiapCloudGames.Domain.Interfaces.Repositories;
-using FiapCloudGames.Infrastructure.Data;
+using FiapCloudGames.Users.Domain.Entities;
+using FiapCloudGames.Users.Domain.Interfaces.Repositories;
+using FiapCloudGames.Users.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
-namespace FiapCloudGames.Infrastructure.Repositories
+namespace FiapCloudGames.Users.Infrastructure.Repositories
 {
     public class UserRepository : IUserRepository
     {

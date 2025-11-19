@@ -1,6 +1,6 @@
-using FiapCloudGames.Domain.Enums;
+using FiapCloudGames.Users.Domain.Enums;
 
-namespace FiapCloudGames.Domain.Entities
+namespace FiapCloudGames.Users.Domain.Entities
 {
     public class User
     {

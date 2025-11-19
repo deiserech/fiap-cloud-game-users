@@ -1,13 +1,14 @@
 using System.Text.Json.Serialization;
-using FiapCloudGames.Api.Extensions;
-using FiapCloudGames.Api.Middlewares;
-using FiapCloudGames.Application.Interfaces.Services;
-using FiapCloudGames.Application.Services;
-using FiapCloudGames.Domain.Interfaces.Repositories;
-using FiapCloudGames.Infrastructure.Data;
-using FiapCloudGames.Infrastructure.Repositories;
 using FiapCloudGames.Users.Api.BackgroundServices;
+using FiapCloudGames.Users.Api.Extensions;
+using FiapCloudGames.Users.Api.Middlewares;
+using FiapCloudGames.Users.Application.Interfaces.Services;
+using FiapCloudGames.Users.Application.Services;
+using FiapCloudGames.Users.Domain.Interfaces.Repositories;
+using FiapCloudGames.Users.Infrastructure.Data;
+using FiapCloudGames.Users.Infrastructure.Repositories;
 using FiapCloudGames.Users.Infrastructure.ServiceBus;
+using FiapCloudGames.Users.Shared;
 using Microsoft.EntityFrameworkCore;
 using OpenTelemetry.Exporter;
 

@@ -1,6 +1,5 @@
-using FiapCloudGames.Application.Interfaces.Services;
-using FiapCloudGames.Domain.Entities;
 using FiapCloudGames.Users.Application.Interfaces.Services;
+using FiapCloudGames.Users.Domain.Entities;
 using FiapCloudGames.Users.Domain.Events;
 using Microsoft.Extensions.Logging;
 

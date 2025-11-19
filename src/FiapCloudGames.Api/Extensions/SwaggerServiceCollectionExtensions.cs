@@ -1,7 +1,6 @@
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.OpenApi.Models;
 
-namespace FiapCloudGames.Api.Extensions
+namespace FiapCloudGames.Users.Api.Extensions
 {
     public static class SwaggerServiceCollectionExtensions
     {
@@ -13,7 +12,7 @@ namespace FiapCloudGames.Api.Extensions
                 {
                     Title = "FIAP Cloud Games API",
                     Version = "v1",
-                    Description = "API para gerenciamento de jogos, biblioteca de usuários e promoções",
+                    Description = "API para gerenciamento de jogos, biblioteca de usuÃ¡rios e promoÃ§Ãµes",
                     Contact = new OpenApiContact
                     {
                         Name = "FIAP Cloud Games Team",

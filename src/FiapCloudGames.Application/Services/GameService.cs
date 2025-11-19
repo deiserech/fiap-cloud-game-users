@@ -1,10 +1,10 @@
-using FiapCloudGames.Application.DTOs;
-using FiapCloudGames.Application.Interfaces.Services;
-using FiapCloudGames.Domain.Entities;
-using FiapCloudGames.Domain.Interfaces.Repositories;
+using FiapCloudGames.Users.Application.DTOs;
+using FiapCloudGames.Users.Application.Interfaces.Services;
+using FiapCloudGames.Users.Domain.Entities;
+using FiapCloudGames.Users.Domain.Interfaces.Repositories;
 using Microsoft.Extensions.Logging;
 
-namespace FiapCloudGames.Application.Services
+namespace FiapCloudGames.Users.Application.Services
 {
     public class GameService : IGameService
     {

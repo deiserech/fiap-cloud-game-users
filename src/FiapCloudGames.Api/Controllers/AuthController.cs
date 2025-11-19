@@ -1,9 +1,9 @@
-using FiapCloudGames.Application.DTOs;
-using FiapCloudGames.Application.Interfaces.Services;
-using FiapCloudGames.Application.Utils;
+using FiapCloudGames.Users.Application.DTOs;
+using FiapCloudGames.Users.Application.Interfaces.Services;
+using FiapCloudGames.Users.Application.Utils;
 using Microsoft.AspNetCore.Mvc;
 
-namespace FiapCloudGames.Api.Controllers
+namespace FiapCloudGames.Users.Api.Controllers
 {
     /// <summary>
     /// Controller responsável pela autenticação e registro de usuários

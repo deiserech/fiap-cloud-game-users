@@ -3,7 +3,7 @@ using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 
-namespace FiapCloudGames.Api.Extensions
+namespace FiapCloudGames.Users.Api.Extensions
 {
     public static class JwtAuthenticationServiceCollectionExtensions
     {

@@ -1,8 +1,8 @@
-using FiapCloudGames.Domain.Entities;
+using FiapCloudGames.Users.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace FiapCloudGames.Infrastructure.Data.Mapping
+namespace FiapCloudGames.Users.Infrastructure.Data.Mapping
 {
     public class GameMap : IEntityTypeConfiguration<Game>
     {

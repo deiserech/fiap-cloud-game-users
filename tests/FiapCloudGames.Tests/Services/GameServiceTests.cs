@@ -1,7 +1,7 @@
-using FiapCloudGames.Application.DTOs;
-using FiapCloudGames.Application.Services;
-using FiapCloudGames.Domain.Entities;
-using FiapCloudGames.Domain.Interfaces.Repositories;
+using FiapCloudGames.Users.Application.DTOs;
+using FiapCloudGames.Users.Application.Services;
+using FiapCloudGames.Users.Domain.Entities;
+using FiapCloudGames.Users.Domain.Interfaces.Repositories;
 using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using Moq;

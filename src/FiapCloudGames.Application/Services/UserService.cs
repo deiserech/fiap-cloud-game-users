@@ -1,15 +1,15 @@
-using FiapCloudGames.Shared.Tracing;
-using FiapCloudGames.Application.DTOs;
-using FiapCloudGames.Domain.Entities;
-using FiapCloudGames.Domain.Interfaces.Repositories;
-using FiapCloudGames.Application.Interfaces.Services;
 using Microsoft.Extensions.Logging;
+using FiapCloudGames.Users.Shared.Tracing;
+using FiapCloudGames.Users.Domain.Interfaces.Repositories;
+using FiapCloudGames.Users.Domain.Entities;
+using FiapCloudGames.Users.Application.Interfaces.Services;
+using FiapCloudGames.Users.Application.DTOs;
 
-namespace FiapCloudGames.Application.Services
+namespace FiapCloudGames.Users.Application.Services
 {
     public class UserService : IUserService
     {
-        private readonly Domain.Interfaces.Repositories.IUserRepository _repo;
+        private readonly IUserRepository _repo;
         private readonly ILogger<UserService> _logger;
 
         public UserService(IUserRepository repo, ILogger<UserService> logger)

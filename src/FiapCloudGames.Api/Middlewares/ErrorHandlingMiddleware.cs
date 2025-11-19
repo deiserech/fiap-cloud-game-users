@@ -2,7 +2,7 @@
 using System.Net;
 using System.Text.Json;
 
-namespace FiapCloudGames.Api.Middlewares;
+namespace FiapCloudGames.Users.Api.Middlewares;
 
 public class ErrorHandlingMiddleware
 {

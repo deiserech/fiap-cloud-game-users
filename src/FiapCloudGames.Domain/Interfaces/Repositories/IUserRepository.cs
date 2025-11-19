@@ -1,6 +1,6 @@
-using FiapCloudGames.Domain.Entities;
+using FiapCloudGames.Users.Domain.Entities;
 
-namespace FiapCloudGames.Domain.Interfaces.Repositories
+namespace FiapCloudGames.Users.Domain.Interfaces.Repositories
 {
     public interface IUserRepository
     {

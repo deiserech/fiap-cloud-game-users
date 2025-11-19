@@ -1,4 +1,4 @@
-namespace FiapCloudGames.Domain.Entities
+namespace FiapCloudGames.Users.Domain.Entities
 {
     public class Library
     {

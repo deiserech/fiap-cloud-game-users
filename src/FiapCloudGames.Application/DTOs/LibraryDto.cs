@@ -1,6 +1,4 @@
-using System.ComponentModel.DataAnnotations;
-
-namespace FiapCloudGames.Application.DTOs
+namespace FiapCloudGames.Users.Application.DTOs
 {
     public class LibraryDto
     {

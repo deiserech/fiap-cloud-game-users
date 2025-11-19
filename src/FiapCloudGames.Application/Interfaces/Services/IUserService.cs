@@ -1,7 +1,7 @@
-using FiapCloudGames.Application.DTOs;
-using FiapCloudGames.Domain.Entities;
+using FiapCloudGames.Users.Application.DTOs;
+using FiapCloudGames.Users.Domain.Entities;
 
-namespace FiapCloudGames.Application.Interfaces.Services
+namespace FiapCloudGames.Users.Application.Interfaces.Services
 {
     public interface IUserService
     {

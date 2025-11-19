@@ -1,7 +1,7 @@
-using FiapCloudGames.Api.Controllers;
-using FiapCloudGames.Application.DTOs;
-using FiapCloudGames.Application.Interfaces.Services;
-using FiapCloudGames.Domain.Enums;
+using FiapCloudGames.Users.Api.Controllers;
+using FiapCloudGames.Users.Application.DTOs;
+using FiapCloudGames.Users.Application.Interfaces.Services;
+using FiapCloudGames.Users.Domain.Enums;
 using FluentAssertions;
 using Microsoft.AspNetCore.Mvc;
 using Moq;

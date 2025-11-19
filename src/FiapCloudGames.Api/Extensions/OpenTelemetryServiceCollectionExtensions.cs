@@ -4,7 +4,7 @@ using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
 
-namespace FiapCloudGames.Api.Extensions
+namespace FiapCloudGames.Users.Api.Extensions
 {
     public static class OpenTelemetryServiceCollectionExtensions
     {

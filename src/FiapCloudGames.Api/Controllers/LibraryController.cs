@@ -1,9 +1,9 @@
-using FiapCloudGames.Application.Interfaces.Services;
-using FiapCloudGames.Domain.Entities;
+using FiapCloudGames.Users.Application.Interfaces.Services;
+using FiapCloudGames.Users.Domain.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace FiapCloudGames.Api.Controllers
+namespace FiapCloudGames.Users.Api.Controllers
 {
     /// <summary>
     /// Controller responsável pelo gerenciamento da biblioteca de jogos dos usuários

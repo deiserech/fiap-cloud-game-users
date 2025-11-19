@@ -1,7 +1,7 @@
 using System.ComponentModel.DataAnnotations;
-using FiapCloudGames.Domain.Enums;
+using FiapCloudGames.Users.Domain.Enums;
 
-namespace FiapCloudGames.Application.DTOs
+namespace FiapCloudGames.Users.Application.DTOs
 {
     public class RegisterDto
     {

@@ -1,9 +1,9 @@
 using System.IdentityModel.Tokens.Jwt;
-using FiapCloudGames.Application.Services;
-using FiapCloudGames.Application.DTOs;
-using FiapCloudGames.Domain.Entities;
-using FiapCloudGames.Domain.Enums;
-using FiapCloudGames.Domain.Interfaces.Repositories;
+using FiapCloudGames.Users.Application.DTOs;
+using FiapCloudGames.Users.Application.Services;
+using FiapCloudGames.Users.Domain.Entities;
+using FiapCloudGames.Users.Domain.Enums;
+using FiapCloudGames.Users.Domain.Interfaces.Repositories;
 using FluentAssertions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
@@ -16,21 +16,21 @@ namespace FiapCloudGames.Tests.Services
     {
         private readonly Mock<IUserRepository> _mockUserRepository;
         private readonly Mock<IConfiguration> _mockConfiguration;
-        private readonly Mock<ILogger<AuthService>> _mockLogger; 
+        private readonly Mock<ILogger<AuthService>> _mockLogger;
         private readonly AuthService _authService;
 
         public AuthServiceTests()
         {
             _mockUserRepository = new Mock<IUserRepository>();
             _mockConfiguration = new Mock<IConfiguration>();
-            _mockLogger = new Mock<ILogger<AuthService>>(); 
+            _mockLogger = new Mock<ILogger<AuthService>>();
 
             SetupJwtConfiguration();
 
             _authService = new AuthService(
                 _mockUserRepository.Object,
                 _mockConfiguration.Object,
-                _mockLogger.Object 
+                _mockLogger.Object
             );
         }
 
@@ -185,7 +185,7 @@ namespace FiapCloudGames.Tests.Services
             _mockUserRepository.Setup(repo => repo.CreateAsync(It.IsAny<User>()))
                 .ReturnsAsync((User u) =>
                 {
-                    u.Id = Guid.NewGuid(); 
+                    u.Id = Guid.NewGuid();
                     return u;
                 });
 
