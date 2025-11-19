@@ -26,12 +26,14 @@ namespace FiapCloudGames.Users.Infrastructure.Repositories
                 .FirstOrDefaultAsync(l => l.Id == id);
         }
 
-        public async Task<IEnumerable<Library>> GetByPurchaseIdAsync(Guid purchaseId)
+        public async Task<Library?> GetByPurchaseGameAndUserAsync(Guid purchaseId, Guid gameId, Guid userId)
         {
-            _logger.LogDebug("Buscando biblioteca da compra: {purchaseId}", purchaseId);
+            _logger.LogDebug("Buscando biblioteca para: {purchaseId}, {UserId}, {GameId}", purchaseId, userId, gameId);
             return await _context.Libraries
-                .Where(l => l.PurchaseId == purchaseId)
-                .ToListAsync();
+                .Where(l => l.PurchaseId == purchaseId
+                    && l.UserId == userId
+                    && l.GameId == gameId)
+                .FirstOrDefaultAsync();
         }
 
         public async Task<IEnumerable<Library>> GetByUserIdAsync(Guid userId)

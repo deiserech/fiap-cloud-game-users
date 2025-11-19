@@ -22,7 +22,6 @@ namespace FiapCloudGames.Users.Application.Services
             _logger = logger;
         }
 
-
         public async Task<IEnumerable<Library>> GetUserLibraryAsync(Guid userId)
         {
             using var activity = Tracing.ActivitySource.StartActivity($"{nameof(LibraryService)}.GetUserLibraryAsync");
@@ -36,21 +35,21 @@ namespace FiapCloudGames.Users.Application.Services
             return await _libraryRepository.GetByUserIdAsync(userId);
         }
 
-        public async Task<IEnumerable<Library>> GetLibrariesByPurchaseIdAsync(Guid id)
+        public async Task<Library?> GetLibraryByPurchaseGameAndUserAsync(Guid purchaseId, Guid gameId, Guid userId)
         {
             using var activity = Tracing.ActivitySource.StartActivity($"{nameof(LibraryService)}.GetLibraryEntryAsync");
-            _logger.LogInformation("Buscando entrada da biblioteca: {Id}", id);
-            return await _libraryRepository.GetByPurchaseIdAsync(id);
+            return await _libraryRepository.GetByPurchaseGameAndUserAsync(purchaseId, gameId, userId);
         }
- 
+
         public async Task<bool> UserOwnsGameAsync(Guid userId, Guid gameId)
         {
             return await _libraryRepository.ExistsAsync(userId, gameId);
-        } 
+        }
 
         public async Task<Library> CreateAsync(Library library)
         {
             return await _libraryRepository.CreateAsync(library);
         }
+
     }
 }

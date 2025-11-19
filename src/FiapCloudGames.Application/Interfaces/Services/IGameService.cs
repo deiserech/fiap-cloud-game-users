@@ -1,10 +1,10 @@
 using FiapCloudGames.Users.Application.DTOs;
+using FiapCloudGames.Users.Domain.Entities.Events;
 
 namespace FiapCloudGames.Users.Application.Interfaces.Services
 {
     public interface IGameService
     {
-        Task<GameDto?> GetByIdAsync(Guid id);
-        Task<GameDto> CreateAsync(GameDto gameDto);
+        Task ProcessAsync(GameEvent message, CancellationToken cancellationToken = default);
     }
 }
