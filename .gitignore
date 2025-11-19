@@ -56,4 +56,4 @@ nunit-*.xml
 /Screenshot 2025-08-04 200533.png
 /.vs
 /clean.ps1
-/tests/FiapCloudGames.Tests/coverage-report/
+tests/FiapCloudGames.Tests/coverage-report/

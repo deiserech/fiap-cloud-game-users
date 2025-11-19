@@ -211,51 +211,61 @@ for (i = 0, l = charts.length; i < l; i++) {
 
 var assemblies = [
   {
-    "name": "FiapCloudGames.Api",
+    "name": "FiapCloudGames.Users.Api",
     "classes": [
-      { "name": "FiapCloudGames.Api.Controllers.AuthController", "rp": "FiapCloudGames.Api_AuthController.html", "cl": 30, "ucl": 2, "cal": 32, "tl": 89, "cb": 12, "tb": 14, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
-      { "name": "FiapCloudGames.Api.Controllers.GameController", "rp": "FiapCloudGames.Api_GameController.html", "cl": 19, "ucl": 1, "cal": 20, "tl": 84, "cb": 6, "tb": 8, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
-      { "name": "FiapCloudGames.Api.Controllers.LibraryController", "rp": "FiapCloudGames.Api_LibraryController.html", "cl": 23, "ucl": 22, "cal": 45, "tl": 136, "cb": 2, "tb": 4, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
-      { "name": "FiapCloudGames.Api.Controllers.PromotionController", "rp": "FiapCloudGames.Api_PromotionController.html", "cl": 0, "ucl": 81, "cal": 81, "tl": 230, "cb": 0, "tb": 8, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
-      { "name": "FiapCloudGames.Api.Controllers.UserController", "rp": "FiapCloudGames.Api_UserController.html", "cl": 39, "ucl": 0, "cal": 39, "tl": 105, "cb": 9, "tb": 10, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
-      { "name": "FiapCloudGames.Api.Middlewares.ErrorHandlingMiddleware", "rp": "FiapCloudGames.Api_ErrorHandlingMiddleware.html", "cl": 0, "ucl": 26, "cal": 26, "tl": 44, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
-      { "name": "FiapCloudGames.Api.Program", "rp": "FiapCloudGames.Api_Program.html", "cl": 0, "ucl": 8, "cal": 8, "tl": 20, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
-      { "name": "FiapCloudGames.Api.Request.PurchaseGameRequest", "rp": "FiapCloudGames.Api_PurchaseGameRequest.html", "cl": 2, "ucl": 1, "cal": 3, "tl": 31, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
-      { "name": "FiapCloudGames.Api.Startup", "rp": "FiapCloudGames.Api_Startup.html", "cl": 0, "ucl": 116, "cal": 116, "tl": 151, "cb": 0, "tb": 8, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "FiapCloudGames.Users.Api.BackgroundServices.GameConsumer", "rp": "FiapCloudGames.Users.Api_GameConsumer.html", "cl": 0, "ucl": 29, "cal": 29, "tl": 56, "cb": 0, "tb": 6, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "FiapCloudGames.Users.Api.BackgroundServices.PurchaseCompletedConsumer", "rp": "FiapCloudGames.Users.Api_PurchaseCompletedConsumer.html", "cl": 0, "ucl": 29, "cal": 29, "tl": 55, "cb": 0, "tb": 6, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "FiapCloudGames.Users.Api.Controllers.AuthController", "rp": "FiapCloudGames.Users.Api_AuthController.html", "cl": 26, "ucl": 6, "cal": 32, "tl": 89, "cb": 10, "tb": 14, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "FiapCloudGames.Users.Api.Controllers.LibraryController", "rp": "FiapCloudGames.Users.Api_LibraryController.html", "cl": 15, "ucl": 0, "cal": 15, "tl": 56, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "FiapCloudGames.Users.Api.Controllers.UserController", "rp": "FiapCloudGames.Users.Api_UserController.html", "cl": 43, "ucl": 0, "cal": 43, "tl": 111, "cb": 11, "tb": 12, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "FiapCloudGames.Users.Api.Extensions.JwtAuthenticationServiceCollectionExtensions", "rp": "FiapCloudGames.Users.Api_JwtAuthenticationServiceCollectionExtensions.html", "cl": 0, "ucl": 27, "cal": 27, "tl": 43, "cb": 0, "tb": 4, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "FiapCloudGames.Users.Api.Extensions.OpenTelemetryServiceCollectionExtensions", "rp": "FiapCloudGames.Users.Api_OpenTelemetryServiceCollectionExtensions.html", "cl": 0, "ucl": 30, "cal": 30, "tl": 46, "cb": 0, "tb": 6, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "FiapCloudGames.Users.Api.Extensions.SwaggerServiceCollectionExtensions", "rp": "FiapCloudGames.Users.Api_SwaggerServiceCollectionExtensions.html", "cl": 0, "ucl": 48, "cal": 48, "tl": 58, "cb": 0, "tb": 2, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "FiapCloudGames.Users.Api.Middlewares.ErrorHandlingMiddleware", "rp": "FiapCloudGames.Users.Api_ErrorHandlingMiddleware.html", "cl": 0, "ucl": 26, "cal": 26, "tl": 44, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "FiapCloudGames.Users.Api.Middlewares.TracingEnrichmentMiddleware", "rp": "FiapCloudGames.Users.Api_TracingEnrichmentMiddleware.html", "cl": 0, "ucl": 18, "cal": 18, "tl": 30, "cb": 0, "tb": 6, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "Program", "rp": "FiapCloudGames.Users.Api_Program.html", "cl": 0, "ucl": 23, "cal": 23, "tl": 40, "cb": 0, "tb": 2, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
     ]},
   {
-    "name": "FiapCloudGames.Application",
+    "name": "FiapCloudGames.Users.Application",
     "classes": [
-      { "name": "FiapCloudGames.Application.Services.AuthService", "rp": "FiapCloudGames.Application_AuthService.html", "cl": 66, "ucl": 2, "cal": 68, "tl": 109, "cb": 9, "tb": 12, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
-      { "name": "FiapCloudGames.Application.Services.GameService", "rp": "FiapCloudGames.Application_GameService.html", "cl": 13, "ucl": 4, "cal": 17, "tl": 38, "cb": 2, "tb": 4, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
-      { "name": "FiapCloudGames.Application.Services.LibraryService", "rp": "FiapCloudGames.Application_LibraryService.html", "cl": 35, "ucl": 6, "cal": 41, "tl": 72, "cb": 5, "tb": 10, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
-      { "name": "FiapCloudGames.Application.Services.PromotionService", "rp": "FiapCloudGames.Application_PromotionService.html", "cl": 61, "ucl": 41, "cal": 102, "tl": 177, "cb": 20, "tb": 36, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
-      { "name": "FiapCloudGames.Application.Services.UserService", "rp": "FiapCloudGames.Application_UserService.html", "cl": 5, "ucl": 10, "cal": 15, "tl": 33, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "FiapCloudGames.Users.Application.DTOs.AuthResponseDto", "rp": "FiapCloudGames.Users.Application_AuthResponseDto.html", "cl": 3, "ucl": 0, "cal": 3, "tl": 9, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "FiapCloudGames.Users.Application.DTOs.GameDto", "rp": "FiapCloudGames.Users.Application_GameDto.html", "cl": 0, "ucl": 3, "cal": 3, "tl": 9, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "FiapCloudGames.Users.Application.DTOs.LibraryDto", "rp": "FiapCloudGames.Users.Application_LibraryDto.html", "cl": 0, "ucl": 4, "cal": 4, "tl": 10, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "FiapCloudGames.Users.Application.DTOs.LoginDto", "rp": "FiapCloudGames.Users.Application_LoginDto.html", "cl": 2, "ucl": 0, "cal": 2, "tl": 16, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "FiapCloudGames.Users.Application.DTOs.RegisterDto", "rp": "FiapCloudGames.Users.Application_RegisterDto.html", "cl": 4, "ucl": 0, "cal": 4, "tl": 24, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "FiapCloudGames.Users.Application.Services.AuthService", "rp": "FiapCloudGames.Users.Application_AuthService.html", "cl": 73, "ucl": 2, "cal": 75, "tl": 119, "cb": 9, "tb": 12, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "FiapCloudGames.Users.Application.Services.GameService", "rp": "FiapCloudGames.Users.Application_GameService.html", "cl": 35, "ucl": 0, "cal": 35, "tl": 60, "cb": 12, "tb": 12, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "FiapCloudGames.Users.Application.Services.LibraryService", "rp": "FiapCloudGames.Users.Application_LibraryService.html", "cl": 22, "ucl": 0, "cal": 22, "tl": 47, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "FiapCloudGames.Users.Application.Services.PurchaseService", "rp": "FiapCloudGames.Users.Application_PurchaseService.html", "cl": 20, "ucl": 0, "cal": 20, "tl": 39, "cb": 2, "tb": 2, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "FiapCloudGames.Users.Application.Services.UserService", "rp": "FiapCloudGames.Users.Application_UserService.html", "cl": 29, "ucl": 0, "cal": 29, "tl": 53, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "FiapCloudGames.Users.Application.Utils.ValidationHelper", "rp": "FiapCloudGames.Users.Application_ValidationHelper.html", "cl": 25, "ucl": 18, "cal": 43, "tl": 66, "cb": 16, "tb": 26, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
     ]},
   {
-    "name": "FiapCloudGames.Domain",
+    "name": "FiapCloudGames.Users.Domain",
     "classes": [
-      { "name": "FiapCloudGames.Domain.DTOs.AuthResponseDto", "rp": "FiapCloudGames.Domain_AuthResponseDto.html", "cl": 4, "ucl": 0, "cal": 4, "tl": 10, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
-      { "name": "FiapCloudGames.Domain.DTOs.CreatePromotionDto", "rp": "FiapCloudGames.Domain_CreatePromotionDto.html", "cl": 0, "ucl": 8, "cal": 8, "tl": 31, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
-      { "name": "FiapCloudGames.Domain.DTOs.LibraryDto", "rp": "FiapCloudGames.Domain_LibraryDto.html", "cl": 0, "ucl": 4, "cal": 4, "tl": 12, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
-      { "name": "FiapCloudGames.Domain.DTOs.LoginDto", "rp": "FiapCloudGames.Domain_LoginDto.html", "cl": 2, "ucl": 0, "cal": 2, "tl": 16, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
-      { "name": "FiapCloudGames.Domain.DTOs.PromotionDto", "rp": "FiapCloudGames.Domain_PromotionDto.html", "cl": 0, "ucl": 9, "cal": 9, "tl": 30, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
-      { "name": "FiapCloudGames.Domain.DTOs.PurchaseGameDto", "rp": "FiapCloudGames.Domain_PurchaseGameDto.html", "cl": 0, "ucl": 3, "cal": 3, "tl": 17, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
-      { "name": "FiapCloudGames.Domain.DTOs.RegisterDto", "rp": "FiapCloudGames.Domain_RegisterDto.html", "cl": 4, "ucl": 0, "cal": 4, "tl": 24, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
-      { "name": "FiapCloudGames.Domain.Entities.Game", "rp": "FiapCloudGames.Domain_Game.html", "cl": 6, "ucl": 0, "cal": 6, "tl": 26, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
-      { "name": "FiapCloudGames.Domain.Entities.Library", "rp": "FiapCloudGames.Domain_Library.html", "cl": 5, "ucl": 0, "cal": 5, "tl": 25, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
-      { "name": "FiapCloudGames.Domain.Entities.Promotion", "rp": "FiapCloudGames.Domain_Promotion.html", "cl": 9, "ucl": 14, "cal": 23, "tl": 58, "cb": 0, "tb": 12, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
-      { "name": "FiapCloudGames.Domain.Entities.User", "rp": "FiapCloudGames.Domain_User.html", "cl": 13, "ucl": 2, "cal": 15, "tl": 42, "cb": 1, "tb": 2, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
-      { "name": "FiapCloudGames.Domain.Utils.ValidationHelper", "rp": "FiapCloudGames.Domain_ValidationHelper.html", "cl": 36, "ucl": 7, "cal": 43, "tl": 66, "cb": 23, "tb": 26, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "FiapCloudGames.Users.Domain.Entities.Events.GameEvent", "rp": "FiapCloudGames.Users.Domain_GameEvent.html", "cl": 6, "ucl": 0, "cal": 6, "tl": 9, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "FiapCloudGames.Users.Domain.Entities.Game", "rp": "FiapCloudGames.Users.Domain_Game.html", "cl": 14, "ucl": 0, "cal": 14, "tl": 23, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "FiapCloudGames.Users.Domain.Entities.Library", "rp": "FiapCloudGames.Users.Domain_Library.html", "cl": 13, "ucl": 1, "cal": 14, "tl": 28, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "FiapCloudGames.Users.Domain.Entities.User", "rp": "FiapCloudGames.Users.Domain_User.html", "cl": 13, "ucl": 2, "cal": 15, "tl": 34, "cb": 1, "tb": 2, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "FiapCloudGames.Users.Domain.Events.PurchaseCompletedEvent", "rp": "FiapCloudGames.Users.Domain_PurchaseCompletedEvent.html", "cl": 6, "ucl": 2, "cal": 8, "tl": 11, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
     ]},
   {
-    "name": "FiapCloudGames.Infrastructure",
+    "name": "FiapCloudGames.Users.Infrastructure",
     "classes": [
-      { "name": "FiapCloudGames.Infrastructure.Data.AppDbContext", "rp": "FiapCloudGames.Infrastructure_AppDbContext.html", "cl": 0, "ucl": 35, "cal": 35, "tl": 54, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
-      { "name": "FiapCloudGames.Infrastructure.LibraryRepository", "rp": "FiapCloudGames.Infrastructure_LibraryRepository.html", "cl": 0, "ucl": 26, "cal": 26, "tl": 49, "cb": 0, "tb": 2, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
-      { "name": "FiapCloudGames.Infrastructure.PromotionRepository", "rp": "FiapCloudGames.Infrastructure_PromotionRepository.html", "cl": 0, "ucl": 41, "cal": 41, "tl": 70, "cb": 0, "tb": 6, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
-      { "name": "FiapCloudGames.Infrastructure.Repositories.GameRepository", "rp": "FiapCloudGames.Infrastructure_GameRepository.html", "cl": 0, "ucl": 37, "cal": 37, "tl": 63, "cb": 0, "tb": 6, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
-      { "name": "FiapCloudGames.Infrastructure.UserRepository", "rp": "FiapCloudGames.Infrastructure_UserRepository.html", "cl": 0, "ucl": 46, "cal": 46, "tl": 76, "cb": 0, "tb": 6, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "FiapCloudGames.Users.Infrastructure.Data.AppDbContext", "rp": "FiapCloudGames.Users.Infrastructure_AppDbContext.html", "cl": 0, "ucl": 20, "cal": 20, "tl": 35, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "FiapCloudGames.Users.Infrastructure.Data.Mapping.GameMap", "rp": "FiapCloudGames.Users.Infrastructure_GameMap.html", "cl": 0, "ucl": 11, "cal": 11, "tl": 24, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "FiapCloudGames.Users.Infrastructure.Data.Mapping.LibraryMap", "rp": "FiapCloudGames.Users.Infrastructure_LibraryMap.html", "cl": 0, "ucl": 17, "cal": 17, "tl": 33, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "FiapCloudGames.Users.Infrastructure.Data.Mapping.UserMap", "rp": "FiapCloudGames.Users.Infrastructure_UserMap.html", "cl": 0, "ucl": 21, "cal": 21, "tl": 38, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "FiapCloudGames.Users.Infrastructure.Repositories.GameRepository", "rp": "FiapCloudGames.Users.Infrastructure_GameRepository.html", "cl": 0, "ucl": 34, "cal": 34, "tl": 59, "cb": 0, "tb": 6, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "FiapCloudGames.Users.Infrastructure.Repositories.LibraryRepository", "rp": "FiapCloudGames.Users.Infrastructure_LibraryRepository.html", "cl": 0, "ucl": 38, "cal": 38, "tl": 63, "cb": 0, "tb": 2, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "FiapCloudGames.Users.Infrastructure.Repositories.UserRepository", "rp": "FiapCloudGames.Users.Infrastructure_UserRepository.html", "cl": 0, "ucl": 52, "cal": 52, "tl": 83, "cb": 0, "tb": 6, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "FiapCloudGames.Users.Infrastructure.ServiceBus.ServiceBusClientWrapper", "rp": "FiapCloudGames.Users.Infrastructure_ServiceBusClientWrapper.html", "cl": 0, "ucl": 7, "cal": 7, "tl": 20, "cb": 0, "tb": 4, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+    ]},
+  {
+    "name": "FiapCloudGames.Users.Shared",
+    "classes": [
+      { "name": "FiapCloudGames.Users.Shared.ResourceLoggingService", "rp": "FiapCloudGames.Users.Shared_ResourceLoggingService.html", "cl": 0, "ucl": 40, "cal": 40, "tl": 61, "cb": 0, "tb": 18, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "FiapCloudGames.Users.Shared.Tracing.Tracing", "rp": "FiapCloudGames.Users.Shared_Tracing.html", "cl": 1, "ucl": 0, "cal": 1, "tl": 9, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
     ]},
 ];
 
@@ -270,22 +280,28 @@ var riskHotspotMetrics = [
 
 var riskHotspots = [
   {
-    "assembly": "FiapCloudGames.Domain", "class": "FiapCloudGames.Domain.Entities.Promotion", "reportPath": "FiapCloudGames.Domain_Promotion.html", "methodName": "CalculateDiscountedPrice()", "methodShortName": "CalculateDiscountedPrice()", "fileIndex": 0, "line": 45,
+    "assembly": "FiapCloudGames.Users.Shared", "class": "FiapCloudGames.Users.Shared.ResourceLoggingService", "reportPath": "FiapCloudGames.Users.Shared_ResourceLoggingService.html", "methodName": "ExecuteAsync()", "methodShortName": "ExecuteAsync()", "fileIndex": 0, "line": 18,
     "metrics": [
-      { "value": 72, "exceeded": true },
-      { "value": 8, "exceeded": false },
+      { "value": 342, "exceeded": true },
+      { "value": 18, "exceeded": true },
     ]},
   {
-    "assembly": "FiapCloudGames.Api", "class": "FiapCloudGames.Api.Startup", "reportPath": "FiapCloudGames.Api_Startup.html", "methodName": "ConfigureServices(Microsoft.Extensions.DependencyInjection.IServiceCollection)", "methodShortName": "ConfigureServices(...)", "fileIndex": 0, "line": 27,
+    "assembly": "FiapCloudGames.Users.Application", "class": "FiapCloudGames.Users.Application.Utils.ValidationHelper", "reportPath": "FiapCloudGames.Users.Application_ValidationHelper.html", "methodName": "ValidatePassword(System.String)", "methodShortName": "ValidatePassword(...)", "fileIndex": 0, "line": 39,
+    "metrics": [
+      { "value": 46, "exceeded": true },
+      { "value": 18, "exceeded": true },
+    ]},
+  {
+    "assembly": "FiapCloudGames.Users.Api", "class": "FiapCloudGames.Users.Api.Extensions.OpenTelemetryServiceCollectionExtensions", "reportPath": "FiapCloudGames.Users.Api_OpenTelemetryServiceCollectionExtensions.html", "methodName": "AddFiapCloudGamesOpenTelemetry(Microsoft.Extensions.DependencyInjection.IServiceCollection)", "methodShortName": "AddFiapCloudGamesOpenTelemetry(...)", "fileIndex": 0, "line": 12,
     "metrics": [
       { "value": 42, "exceeded": true },
       { "value": 6, "exceeded": false },
     ]},
   {
-    "assembly": "FiapCloudGames.Domain", "class": "FiapCloudGames.Domain.Utils.ValidationHelper", "reportPath": "FiapCloudGames.Domain_ValidationHelper.html", "methodName": "ValidatePassword(System.String)", "methodShortName": "ValidatePassword(...)", "fileIndex": 0, "line": 39,
+    "assembly": "FiapCloudGames.Users.Api", "class": "FiapCloudGames.Users.Api.Middlewares.TracingEnrichmentMiddleware", "reportPath": "FiapCloudGames.Users.Api_TracingEnrichmentMiddleware.html", "methodName": "InvokeAsync()", "methodShortName": "InvokeAsync()", "fileIndex": 0, "line": 15,
     "metrics": [
-      { "value": 20, "exceeded": false },
-      { "value": 18, "exceeded": true },
+      { "value": 42, "exceeded": true },
+      { "value": 6, "exceeded": false },
     ]},
 ];
 
