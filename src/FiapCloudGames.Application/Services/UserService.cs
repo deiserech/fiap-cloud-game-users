@@ -49,5 +49,13 @@ namespace FiapCloudGames.Users.Application.Services
             _logger.LogInformation("Usuário criado com sucesso: {Email}", registerDto.Email);
             return created;
         }
+        public async Task<User?> GetByCodeAsync(int code)
+        {
+            using var activity = Tracing.ActivitySource.StartActivity($"{nameof(UserService)}.GetByCodeAsync");
+            _logger.LogInformation("Buscando usuário por código: {Code}", code);
+            // Implemente GetByCodeAsync no IUserRepository
+            return await _repo.GetByCodeAsync(code);
+        }
+
     }
 }

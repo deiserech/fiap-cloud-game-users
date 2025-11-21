@@ -5,15 +5,11 @@ namespace FiapCloudGames.Users.Domain.Entities
     public class User
     {
         public Guid Id { get; set; }
-
+        public int Code { get; set; }
         public required string Name { get; set; }
-
         public required string Email { get; set; }
-
         public required UserRole Role { get; set; } = UserRole.User;
-
         public string PasswordHash { get; set; } = string.Empty;
-
         public ICollection<Library> LibraryGames { get; set; } = [];
 
         public bool VerifyPassword(string password)

@@ -8,32 +8,43 @@ namespace FiapCloudGames.Users.Application.Services
     public class PurchaseService : IPurchaseService
     {
         private readonly ILibraryService _libraryService;
+        private readonly IGameService _gameService;
+        private readonly IUserService _userService;
         private readonly ILogger<PurchaseService> _logger;
 
-        public PurchaseService(ILibraryService libraryService, ILogger<PurchaseService> logger)
+        public PurchaseService(ILibraryService libraryService, IGameService gameService, IUserService userService, ILogger<PurchaseService> logger)
         {
             _libraryService = libraryService;
+            _gameService = gameService;
+            _userService = userService;
             _logger = logger;
         }
 
         public async Task ProcessAsync(PurchaseCompletedEvent message, CancellationToken cancellationToken = default)
         {
-            var libraries = await _libraryService.GetLibraryByPurchaseGameAndUserAsync(message.PurchaseId, message.GameId, message.UserId);
+            var game = await _gameService.GetByCodeAsync(message.GameCode)
+                ?? throw new Exception($"Game not found: {message.GameCode}");
+
+            var user = await _userService.GetByCodeAsync(message.UserCode)
+                ?? throw new Exception($"User not found: {message.UserCode}");
+
+            var libraries = await _libraryService.GetLibraryByPurchaseGameAndUserAsync(message.PurchaseId, game.Id, user.Id);
             if (libraries is not null)
             {
-                _logger.LogWarning("library still exists: {PurchaseId}, {GameId}, {UserId}", message.PurchaseId, message.GameId, message.UserId);
+                _logger.LogWarning("library still exists: {PurchaseId}, {GameId}, {UserId}", message.PurchaseId, game.Id, user.Id);
                 return;
             }
 
             var library = new Library(
-                message.UserId,
-                message.GameId,
+                user.Id,
+                game.Id,
                 message.PurchaseId,
                 message.ProcessedAt
             );
 
             await _libraryService.CreateAsync(library);
-            _logger.LogInformation("Library created for UserId: {UserId}, GameId: {GameId}, PurchaseId: {PurchaseId}", message.UserId, message.GameId, message.PurchaseId);
+            _logger.LogInformation("Library created for UserId: {UserId}, GameId: {GameId}, PurchaseId: {PurchaseId}",
+                user.Id, game.Id, message.PurchaseId);
         }
     }
 }

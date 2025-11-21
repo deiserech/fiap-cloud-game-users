@@ -79,5 +79,10 @@ namespace FiapCloudGames.Users.Infrastructure.Repositories
         {
             return await _context.Users.AnyAsync(u => u.Email == email);
         }
+        public async Task<User?> GetByCodeAsync(int code)
+        {
+            return await _context.Users.FirstOrDefaultAsync(u => u.Code == code);
+        }
+
     }
 }
