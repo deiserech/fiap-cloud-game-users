@@ -9,5 +9,6 @@ namespace FiapCloudGames.Users.Domain.Interfaces.Repositories
         Task<Game> UpdateAsync(Game game);
         Task RemoveAsync(Guid id);
         Task<bool> ExistsAsync(Guid id);
+        Task<Game?> GetByCodeAsync(int code);
     }
 }

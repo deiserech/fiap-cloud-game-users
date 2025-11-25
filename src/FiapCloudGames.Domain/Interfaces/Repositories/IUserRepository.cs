@@ -11,6 +11,7 @@ namespace FiapCloudGames.Users.Domain.Interfaces.Repositories
         Task<User> UpdateAsync(User user);
         Task DeleteAsync(Guid id);
         Task<bool> ExistsAsync(Guid id);
+        Task<User?> GetByCodeAsync(int code);
         Task<bool> EmailExistsAsync(string email);
     }
 }
