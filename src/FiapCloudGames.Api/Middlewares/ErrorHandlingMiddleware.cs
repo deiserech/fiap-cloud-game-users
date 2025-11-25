@@ -1,6 +1,8 @@
 
 using System.Net;
 using System.Text.Json;
+using System.Text.Json.Serialization;
+using FiapCloudGames.Users.Api.Extensions;
 
 namespace FiapCloudGames.Users.Api.Middlewares;
 
@@ -30,15 +32,37 @@ public class ErrorHandlingMiddleware
 
     private static Task HandleExceptionAsync(HttpContext context, Exception exception)
     {
-        var errorResponse = new
+        int status = (int)HttpStatusCode.InternalServerError;
+        string title = "An unexpected error occurred.";
+
+        switch (exception)
         {
-            Message = "An unexpected error occurred.",
-            Details = exception.Message
+            case KeyNotFoundException:
+                status = (int)HttpStatusCode.NotFound;
+                title = "Resource not found.";
+                break;
+            case UnauthorizedAccessException:
+                status = (int)HttpStatusCode.Unauthorized;
+                title = "Unauthorized.";
+                break;
+            case ArgumentNullException:
+            case ArgumentException:
+                status = (int)HttpStatusCode.BadRequest;
+                title = "Invalid request.";
+                break;
+        }
+
+        var problem = context.CreateProblemDetails(status, title, exception.Message);
+
+        var options = new JsonSerializerOptions
+        {
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+            DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
         };
 
-        var result = JsonSerializer.Serialize(errorResponse);
-        context.Response.ContentType = "application/json";
-        context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
+        var result = JsonSerializer.Serialize(problem, options);
+        context.Response.ContentType = "application/problem+json";
+        context.Response.StatusCode = problem.Status ?? status;
         return context.Response.WriteAsync(result);
     }
 }

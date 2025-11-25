@@ -1,5 +1,6 @@
+using FiapCloudGames.Users.Api.Extensions;
+using FiapCloudGames.Users.Application.DTOs;
 using FiapCloudGames.Users.Application.Interfaces.Services;
-using FiapCloudGames.Users.Domain.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -24,33 +25,27 @@ namespace FiapCloudGames.Users.Api.Controllers
         /// <summary>
         /// Obtém a biblioteca completa de um usuário
         /// </summary>
-        /// <param name="userId">ID do usuário</param>
+        /// <param name="userCode">Código do usuário</param>
         /// <returns>Lista de jogos na biblioteca do usuário</returns>
         /// <response code="200">Retorna a biblioteca do usuário</response>
         /// <response code="404">Usuário não encontrado</response>
         /// <response code="400">Erro na solicitação</response>
         /// <response code="401">Não autorizado</response>
-        [HttpGet("user/{userId}")]
+        [HttpGet("user/{userCode}")]
         [Authorize(Roles = "Admin, User")]
-        [ProducesResponseType(typeof(IEnumerable<Library>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(IEnumerable<LibraryDto>), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        public async Task<ActionResult<IEnumerable<Library>>> GetUserLibrary(Guid userId)
+        public async Task<IActionResult> GetUserLibrary(int userCode)
         {
-            try
+            var library = await _libraryService.GetUserLibraryAsync(userCode);
+            if (library == null || !library.Any())
             {
-                var library = await _libraryService.GetUserLibraryAsync(userId);
-                return Ok(library);
+                return this.NotFoundProblem("Biblioteca vazia", $"Usuário com código {userCode} não possui jogos na biblioteca.");
             }
-            catch (ArgumentException ex)
-            {
-                return NotFound(ex.Message);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }
+
+            return Ok(LibraryDto.FromEntity(library!));
         }
     }
 }

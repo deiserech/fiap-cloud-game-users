@@ -57,6 +57,7 @@ namespace FiapCloudGames.Users.Application.Services
             game.Code = message.Code;
             game.Title = message.Title;
             game.UpdatedAt = message.UpdatedAt;
+            game.RemovedAt = message.RemovedAt;
             game.IsActive = message.RemovedAt == null;
 
             await _repo.UpdateAsync(game);

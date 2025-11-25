@@ -10,13 +10,13 @@ namespace FiapCloudGames.Users.Api.Extensions
             {
                 c.SwaggerDoc("v1", new OpenApiInfo
                 {
-                    Title = "FIAP Cloud Games API",
+                    Title = "FIAP Cloud Games Users API",
                     Version = "v1",
-                    Description = "API para gerenciamento de jogos, biblioteca de usuários e promoções",
+                    Description = "API para gerenciamento usuários, login e biblioteca de usuários",
                     Contact = new OpenApiContact
                     {
                         Name = "FIAP Cloud Games Team",
-                        Email = "support@fiapcloudgames.com"
+                        Email = "deiserech@outlook.com"
                     }
                 });
 

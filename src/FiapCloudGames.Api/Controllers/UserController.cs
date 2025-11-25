@@ -1,4 +1,5 @@
 using System.Security.Claims;
+using FiapCloudGames.Users.Api.Extensions;
 using FiapCloudGames.Users.Application.DTOs;
 using FiapCloudGames.Users.Application.Interfaces.Services;
 using Microsoft.AspNetCore.Authorization;
@@ -19,35 +20,29 @@ namespace FiapCloudGames.Users.Api.Controllers
 
         public UserController(IUserService service)
         {
-            _service = service ?? throw new ArgumentNullException(nameof(service));
+            _service = service;
         }
 
         /// <summary>
-        /// Obtém um usuário pelo ID
+        /// Obtém um usuário pelo Código
         /// </summary>
-        /// <param name="id">ID do usuário</param>
+        /// <param name="code">Código do usuário</param>
         /// <returns>Dados do usuário</returns>
         /// <response code="200">Usuário encontrado</response>
         /// <response code="404">Usuário não encontrado</response>
         /// <response code="401">Não autorizado</response>
-        [HttpGet("{id}")]
+        [HttpGet("{code}")]
         [Authorize(Roles = "Admin, User")]
-        [ProducesResponseType(typeof(object), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(UserDto), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        public async Task<IActionResult> GetUser(Guid id)
+        public async Task<IActionResult> GetUser(int code)
         {
-            var user = await _service.GetByIdAsync(id);
+            var user = await _service.GetByCodeAsync(code);
             if (user == null)
-                return NotFound();
+                return this.NotFoundProblem("Usuário não cadastrado", $"Usuário com código {code} não encontrado.");
 
-            return Ok(new
-            {
-                user.Id,
-                user.Name,
-                user.Email,
-                Role = user.Role.ToString()
-            });
+            return Ok(UserDto.FromDomainEntity(user));
         }
 
         /// <summary>
@@ -65,20 +60,14 @@ namespace FiapCloudGames.Users.Api.Controllers
         public async Task<IActionResult> GetProfile()
         {
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            if (string.IsNullOrEmpty(userId)) 
-                return Unauthorized();
+            if (string.IsNullOrEmpty(userId))
+                return this.UnauthorizedProblem("Usuário não autenticado", "Usuário não autenticado ou token ausente.");
 
             var user = await _service.GetByIdAsync(Guid.Parse(userId));
-            if (user == null) 
-                return NotFound();
+            if (user == null)
+                return this.NotFoundProblem("Erro ao buscar perfil do usuário", "O usuário autenticado não foi encontrado no sistema.");
 
-            return Ok(new
-            {
-                user.Id,
-                user.Name,
-                user.Email,
-                Role = user.Role.ToString()
-            });
+            return Ok(UserDto.FromDomainEntity(user));
         }
 
         /// <summary>
@@ -99,13 +88,7 @@ namespace FiapCloudGames.Users.Api.Controllers
 
             var user = await _service.CreateUserAsync(userDto);
 
-            return CreatedAtAction(nameof(CreateUser), new { id = user.Id }, new
-            {
-                user.Id,
-                user.Name,
-                user.Email,
-                Role = user.Role.ToString()
-            });
+            return CreatedAtAction(nameof(GetUser), new { code = user.Code }, UserDto.FromDomainEntity(user));
         }
     }
 }

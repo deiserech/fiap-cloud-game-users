@@ -22,9 +22,12 @@ namespace FiapCloudGames.Users.Application.Services
             _logger = logger;
         }
 
-        public async Task<IEnumerable<Library>> GetUserLibraryAsync(Guid userId)
+        public async Task<IEnumerable<Library>> GetUserLibraryAsync(int code)
         {
-            return await _libraryRepository.GetByUserIdAsync(userId);
+            var user = await _userService.GetByCodeAsync(code)
+                ?? throw new ArgumentException($"Usuário com código {code} não encontrado.");
+
+            return await _libraryRepository.GetByUserIdAsync(user.Id);
         }
 
         public async Task<Library?> GetLibraryByPurchaseGameAndUserAsync(Guid purchaseId, Guid gameId, Guid userId)
