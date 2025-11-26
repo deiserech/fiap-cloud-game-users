@@ -12,12 +12,15 @@ namespace FiapCloudGames.Users.Api.BackgroundServices
         private readonly IServiceProvider _provider;
         private ServiceBusProcessor? _processor;
         private readonly IConfiguration _config;
+        private readonly ILogger<GameConsumer> _logger;
 
-        public GameConsumer(IServiceBusClientWrapper sb, IServiceProvider provider, IConfiguration config)
+
+        public GameConsumer(IServiceBusClientWrapper sb, IServiceProvider provider, IConfiguration config, ILogger<GameConsumer> logger)
         {
             _sb = sb;
             _provider = provider;
             _config = config;
+            _logger = logger;
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -32,7 +35,7 @@ namespace FiapCloudGames.Users.Api.BackgroundServices
 
         private Task ErrorHandler(ProcessErrorEventArgs arg)
         {
-            Console.WriteLine($"GameConsumer error: {arg.Exception}");
+            _logger.LogError($"GameConsumer error: {arg.Exception}");
             return Task.CompletedTask;
         }
 

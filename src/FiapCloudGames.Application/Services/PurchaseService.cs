@@ -31,7 +31,7 @@ namespace FiapCloudGames.Users.Application.Services
             var libraries = await _libraryService.GetLibraryByPurchaseGameAndUserAsync(message.PurchaseId, game.Id, user.Id);
             if (libraries is not null)
             {
-                _logger.LogWarning("library still exists: {PurchaseId}, {GameId}, {UserId}", message.PurchaseId, game.Id, user.Id);
+                _logger.LogWarning("library still exists: {PurchaseId}, {GameCode}, {UserCode}", message.PurchaseId, message.GameCode, message.UserCode);
                 return;
             }
 
@@ -43,8 +43,7 @@ namespace FiapCloudGames.Users.Application.Services
             );
 
             await _libraryService.CreateAsync(library);
-            _logger.LogInformation("Library created for UserId: {UserId}, GameId: {GameId}, PurchaseId: {PurchaseId}",
-                user.Id, game.Id, message.PurchaseId);
+            _logger.LogInformation("Library created for: {PurchaseId}, {GameCode}, {UserCode}", message.PurchaseId, message.GameCode, message.UserCode);
         }
     }
 }
