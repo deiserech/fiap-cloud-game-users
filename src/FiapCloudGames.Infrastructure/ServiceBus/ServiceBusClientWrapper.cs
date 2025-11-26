@@ -9,13 +9,15 @@ namespace FiapCloudGames.Users.Infrastructure.ServiceBus
 
         public ServiceBusClientWrapper(IOptions<ServiceBusOptions> options)
         {
-            var conn = options?.Value?.ConnectionString ?? throw new InvalidOperationException("ServiceBus:ConnectionString is required");
-            _client = new ServiceBusClient(conn);
+            _client = new ServiceBusClient(options.Value.ConnectionString);
         }
 
         public ServiceBusSender GetSender(string queueName) => _client.CreateSender(queueName);
 
         public ServiceBusProcessor CreateProcessor(string queueName, ServiceBusProcessorOptions? options = null)
             => _client.CreateProcessor(queueName, options ?? new ServiceBusProcessorOptions { MaxConcurrentCalls = 1, AutoCompleteMessages = false });
+
+        public ServiceBusProcessor CreateProcessor(string topicName, string subscriptionName, ServiceBusProcessorOptions? options = null)
+            => _client.CreateProcessor(topicName, subscriptionName, options ?? new ServiceBusProcessorOptions { MaxConcurrentCalls = 1, AutoCompleteMessages = false });
     }
 }

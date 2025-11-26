@@ -26,7 +26,7 @@ namespace FiapCloudGames.Users.Application.Services
 
         public async Task ProcessAsync(GameEvent message, CancellationToken cancellationToken = default)
         {
-            var game = await _repo.GetByIdAsync(message.Id);
+            var game = await _repo.GetByCodeAsync(message.Code);
             if (game is null && message.RemovedAt != null)
             {
                 _logger.LogWarning("Game is removed: {GameCode}", message.Code);
@@ -42,7 +42,6 @@ namespace FiapCloudGames.Users.Application.Services
             if (game is null)
             {
                 game = new Game(
-                    message.Id,
                     message.Code,
                     message.Title,
                     message.UpdatedAt,

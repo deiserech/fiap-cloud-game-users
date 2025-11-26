@@ -6,5 +6,6 @@ namespace FiapCloudGames.Users.Infrastructure.ServiceBus
     {
         ServiceBusSender GetSender(string queueName);
         ServiceBusProcessor CreateProcessor(string queueName, ServiceBusProcessorOptions? options = null);
+        ServiceBusProcessor CreateProcessor(string topicName, string subscriptionName, ServiceBusProcessorOptions? options = null);
     }
 }

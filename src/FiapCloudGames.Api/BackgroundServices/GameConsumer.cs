@@ -22,8 +22,9 @@ namespace FiapCloudGames.Users.Api.BackgroundServices
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            var queue = _config["GAME_QUEUE"] ?? "games/created-updated";
-            _processor = _sb.CreateProcessor(queue);
+            var topic = _config["GAME_TOPIC"] ?? "games-created-updated";
+            var subscription = _config["GAME_SUBSCRIPTION"] ?? "fiap-cloud-games-users";
+            _processor = _sb.CreateProcessor(topic, subscription);
             _processor.ProcessMessageAsync += ProcessMessageAsync;
             _processor.ProcessErrorAsync += ErrorHandler;
             await _processor.StartProcessingAsync(stoppingToken);

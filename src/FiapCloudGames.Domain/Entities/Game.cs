@@ -1,6 +1,3 @@
-using System;
-using System.Collections.Generic;
-
 namespace FiapCloudGames.Users.Domain.Entities
 {
     public class Game
@@ -17,13 +14,11 @@ namespace FiapCloudGames.Users.Domain.Entities
 
         public Game() { }
 
-        public Game(Guid id,
-                    int code,
+        public Game(int code,
                     string title,
                     DateTimeOffset updatedAt,
                     DateTimeOffset? removedAt)
         {
-            Id = id;
             Code = code;
             Title = title;
             UpdatedAt = updatedAt;
