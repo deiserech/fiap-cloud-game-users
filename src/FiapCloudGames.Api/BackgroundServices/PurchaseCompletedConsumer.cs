@@ -8,12 +8,12 @@ namespace FiapCloudGames.Users.Api.BackgroundServices
 {
     public class PurchaseCompletedConsumer : BackgroundService
     {
-        private readonly ServiceBusClientWrapper _sb;
+        private readonly IServiceBusClientWrapper _sb;
         private readonly IServiceProvider _provider;
         private ServiceBusProcessor? _processor;
         private readonly IConfiguration _config;
 
-        public PurchaseCompletedConsumer(ServiceBusClientWrapper sb, IServiceProvider provider, IConfiguration config)
+        public PurchaseCompletedConsumer(IServiceBusClientWrapper sb, IServiceProvider provider, IConfiguration config)
         {
             _sb = sb;
             _provider = provider;

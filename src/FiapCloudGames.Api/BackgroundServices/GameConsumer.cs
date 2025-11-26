@@ -1,7 +1,6 @@
 using Azure.Messaging.ServiceBus;
 using FiapCloudGames.Users.Application.Interfaces.Services;
 using FiapCloudGames.Users.Domain.Entities.Events;
-using FiapCloudGames.Users.Domain.Events;
 using FiapCloudGames.Users.Infrastructure.ServiceBus;
 using Newtonsoft.Json;
 
@@ -9,12 +8,12 @@ namespace FiapCloudGames.Users.Api.BackgroundServices
 {
     public class GameConsumer : BackgroundService
     {
-        private readonly ServiceBusClientWrapper _sb;
+        private readonly IServiceBusClientWrapper _sb;
         private readonly IServiceProvider _provider;
         private ServiceBusProcessor? _processor;
         private readonly IConfiguration _config;
 
-        public GameConsumer(ServiceBusClientWrapper sb, IServiceProvider provider, IConfiguration config)
+        public GameConsumer(IServiceBusClientWrapper sb, IServiceProvider provider, IConfiguration config)
         {
             _sb = sb;
             _provider = provider;
