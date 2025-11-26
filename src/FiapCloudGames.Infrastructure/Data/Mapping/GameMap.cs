@@ -11,6 +11,9 @@ namespace FiapCloudGames.Users.Infrastructure.Data.Mapping
             builder.HasKey(g => g.Id);
             builder.Property(g => g.Id)
                 .ValueGeneratedOnAdd();
+                
+            builder.Property(g => g.Code)
+                .IsRequired();
 
             builder.Property(g => g.Title)
                 .IsRequired()
@@ -19,6 +22,9 @@ namespace FiapCloudGames.Users.Infrastructure.Data.Mapping
             builder.HasMany(g => g.LibraryEntries)
                 .WithOne(l => l.Game)
                 .HasForeignKey(l => l.GameId);
+
+            builder.HasIndex(u => u.Code)
+                .IsUnique();                
         }
     }
 }

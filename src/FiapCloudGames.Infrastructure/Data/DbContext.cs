@@ -15,21 +15,7 @@ namespace FiapCloudGames.Users.Infrastructure.Data
             {
                 base.OnModelCreating(modelBuilder);
 
-                modelBuilder.Entity<Library>()
-                    .HasOne(l => l.User)
-                    .WithMany(u => u.LibraryGames)
-                    .HasForeignKey(l => l.UserId)
-                    .OnDelete(DeleteBehavior.Cascade);
-
-                modelBuilder.Entity<Library>()
-                    .HasOne(l => l.Game)
-                    .WithMany(g => g.LibraryEntries)
-                    .HasForeignKey(l => l.GameId)
-                    .OnDelete(DeleteBehavior.Restrict); 
-
-                modelBuilder.Entity<Library>()
-                    .HasIndex(l => new { l.UserId, l.GameId })
-                    .IsUnique();
-            }
+                modelBuilder.ApplyConfigurationsFromAssembly(typeof(AppDbContext).Assembly);
         }
     }
+}

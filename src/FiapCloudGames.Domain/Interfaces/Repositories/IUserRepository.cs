@@ -6,6 +6,7 @@ namespace FiapCloudGames.Users.Domain.Interfaces.Repositories
     {
         Task<User?> GetByIdAsync(Guid id);
         Task<User?> GetByEmailAsync(string email);
+        Task<User?> GetByEmailAndCodeAsync(string email, int code);
         Task<IEnumerable<User>> GetAllAsync();
         Task<User> CreateAsync(User user);
         Task<User> UpdateAsync(User user);

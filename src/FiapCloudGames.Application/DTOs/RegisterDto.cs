@@ -5,6 +5,10 @@ namespace FiapCloudGames.Users.Application.DTOs
 {
     public class RegisterDto
     {
+        [Required(ErrorMessage = "O código é obrigatório.")]
+        [Range(1, int.MaxValue, ErrorMessage = "O código deve ser um número inteiro maior que zero.")]
+        public required int Code { get; set; }
+        
         [Required(ErrorMessage = "O nome é obrigatório.")]
         [StringLength(100, MinimumLength = 2, ErrorMessage = "O nome deve ter entre 2 e 100 caracteres.")]
         public required string Name { get; set; }

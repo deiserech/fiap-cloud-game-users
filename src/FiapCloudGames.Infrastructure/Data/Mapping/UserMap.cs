@@ -12,6 +12,9 @@ namespace FiapCloudGames.Users.Infrastructure.Data.Mapping
             builder.Property(u => u.Id)
                 .ValueGeneratedOnAdd();
 
+            builder.Property(u => u.Code)
+                .IsRequired();
+
             builder.Property(u => u.Name)
                 .IsRequired()
                 .HasMaxLength(100);
@@ -28,6 +31,9 @@ namespace FiapCloudGames.Users.Infrastructure.Data.Mapping
                 .IsRequired();
 
             builder.HasIndex(u => u.Email)
+                .IsUnique();
+
+            builder.HasIndex(u => u.Code)
                 .IsUnique();
 
             builder.HasMany(u => u.LibraryGames)

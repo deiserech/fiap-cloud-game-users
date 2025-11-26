@@ -35,9 +35,17 @@ namespace FiapCloudGames.Users.Application.Services
         public async Task<User> CreateUserAsync(RegisterDto registerDto)
         {
             using var activity = Tracing.ActivitySource.StartActivity($"{nameof(UserService)}.CreateUserAsync");
+            var existingUser = await _repo.GetByEmailAndCodeAsync(registerDto.Email, registerDto.Code);
+            if (existingUser != null)
+            {
+                _logger.LogWarning("Tentativa de criação de usuário com e-mail ou código já existente: {Email}", registerDto.Email);
+                throw new InvalidOperationException("E-mail ou código já está em uso.");
+            }
+
             _logger.LogInformation("Criando usuário: {Email}", registerDto.Email);
             var user = new User
             {
+                Code = registerDto.Code,
                 Name = registerDto.Name,
                 Email = registerDto.Email,
                 Role = registerDto.Role

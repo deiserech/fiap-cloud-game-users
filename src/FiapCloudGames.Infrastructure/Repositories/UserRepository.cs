@@ -35,6 +35,15 @@ namespace FiapCloudGames.Users.Infrastructure.Repositories
                 .FirstOrDefaultAsync(u => u.Email == email);
         }
 
+        public async Task<User?> GetByEmailAndCodeAsync(string email, int code)
+        {
+            _logger.LogDebug("Buscando usuário por email e código: {Email}", email);
+            return await _context.Users
+                .Include(u => u.LibraryGames)
+                    .ThenInclude(l => l.Game)
+                .FirstOrDefaultAsync(u => u.Email == email || u.Code == code);
+        }
+
         public async Task<IEnumerable<User>> GetAllAsync()
         {
             _logger.LogDebug("Listando todos os usuários");
