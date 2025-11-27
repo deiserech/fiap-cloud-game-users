@@ -1,90 +1,95 @@
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using FiapCloudGames.Users.Api.Controllers;
-using FiapCloudGames.Users.Domain.Entities;
+using FiapCloudGames.Users.Application.DTOs;
 using FiapCloudGames.Users.Application.Interfaces.Services;
-using FluentAssertions;
+using FiapCloudGames.Users.Domain.Entities;
+using Shouldly;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.DependencyInjection;
 using Moq;
+using System.Linq;
 using Xunit;
 
-namespace FiapCloudGames.Tests.Controllers
+namespace FiapCloudGames.Tests.Controllers;
+
+public class LibraryControllerTests
 {
-    public class LibraryControllerTests
+    private readonly Mock<ILibraryService> _libraryService = new();
+
+    private static LibraryController CreateController(Mock<ILibraryService> libraryService)
     {
-        private readonly Mock<ILibraryService> _mockLibraryService;
-        private readonly LibraryController _libraryController;
+        var httpContext = new DefaultHttpContext();
+        httpContext.RequestServices = new ServiceCollection().BuildServiceProvider();
 
-        public LibraryControllerTests()
+        var controller = new LibraryController(libraryService.Object)
         {
-            _mockLibraryService = new Mock<ILibraryService>();
-            _libraryController = new LibraryController(_mockLibraryService.Object);
-        }
-
-        [Fact]
-        public async Task GetUserLibrary_WithValidUserId_ShouldReturnOkWithLibrary()
-        {
-            // Arrange
-            var userId = Guid.NewGuid();
-            var expectedLibrary = new List<Library>
+            ControllerContext = new ControllerContext
             {
-                new Library(userId, Guid.NewGuid(), Guid.NewGuid(), DateTimeOffset.UtcNow)
-            };
+                HttpContext = httpContext
+            }
+        };
 
-            _mockLibraryService.Setup(s => s.GetUserLibraryAsync(userId)).ReturnsAsync(expectedLibrary);
+        return controller;
+    }
 
-            // Act
-            var result = await _libraryController.GetUserLibrary(userId);
+    [Fact]
+    public async Task GetUserLibrary_ReturnsNotFound_WhenServiceReturnsNull()
+    {
+        // Arrange
+        _libraryService.Setup(s => s.GetUserLibraryAsync(It.IsAny<int>())).Returns(Task.FromResult<IEnumerable<Library>>(null!));
+        var controller = CreateController(_libraryService);
 
-            // Assert
-            result.Result.Should().BeOfType<OkObjectResult>();
-            var okResult = result.Result as OkObjectResult;
-            okResult.Should().NotBeNull();
-            okResult!.Value.Should().BeEquivalentTo(expectedLibrary);
-            _mockLibraryService.Verify(s => s.GetUserLibraryAsync(userId), Times.Once);
-        }
+        // Act
+        var result = await controller.GetUserLibrary(10);
 
-        [Fact]
-        public async Task GetUserLibrary_WhenUserNotFound_ShouldReturnNotFound()
+        // Assert
+        var notFound = result as NotFoundObjectResult;
+        notFound.ShouldNotBeNull();
+        var pd = notFound!.Value as Microsoft.AspNetCore.Mvc.ProblemDetails;
+        pd.ShouldNotBeNull();
+        pd!.Title.ShouldNotBeNull();
+        pd.Title.ShouldContain("Biblioteca vazia");
+    }
+
+    [Fact]
+    public async Task GetUserLibrary_ReturnsNotFound_WhenServiceReturnsEmpty()
+    {
+        // Arrange
+        _libraryService.Setup(s => s.GetUserLibraryAsync(It.IsAny<int>())).ReturnsAsync(Enumerable.Empty<Library>());
+        var controller = CreateController(_libraryService);
+
+        // Act
+        var result = await controller.GetUserLibrary(11);
+
+        // Assert
+        result.ShouldBeOfType<NotFoundObjectResult>();
+    }
+
+    [Fact]
+    public async Task GetUserLibrary_ReturnsOk_WhenLibraryHasItems()
+    {
+        // Arrange
+        var user = new User { Id = Guid.NewGuid(), Code = 5, Name = "Player", Email = "p@p.com", Role = FiapCloudGames.Users.Domain.Enums.UserRole.User };
+        var game = new Game { Id = Guid.NewGuid(), Code = 55, Title = "Space Invaders", UpdatedAt = System.DateTimeOffset.UtcNow, RemovedAt = null };
+        var lib = new Library(user.Id, game.Id, Guid.NewGuid(), System.DateTimeOffset.UtcNow)
         {
-            // Arrange
-            var userId = Guid.NewGuid();
-            var errorMessage = "Usuário não encontrado";
-            _mockLibraryService
-                .Setup(s => s.GetUserLibraryAsync(userId))
-                .ThrowsAsync(new ArgumentException(errorMessage));
+            Id = Guid.NewGuid(),
+            User = user,
+            Game = game
+        };
 
-            // Act
-            var result = await _libraryController.GetUserLibrary(userId);
+        _libraryService.Setup(s => s.GetUserLibraryAsync(user.Code)).ReturnsAsync(new[] { lib });
+        var controller = CreateController(_libraryService);
 
-            // Assert
-            result.Result.Should().BeOfType<NotFoundObjectResult>();
-            var notFoundResult = result.Result as NotFoundObjectResult;
-            notFoundResult.Should().NotBeNull();
-            notFoundResult!.Value.Should().Be(errorMessage);
-            _mockLibraryService.Verify(s => s.GetUserLibraryAsync(userId), Times.Once);
-        }
+        // Act
+        var result = await controller.GetUserLibrary(user.Code);
 
-        [Fact]
-        public async Task GetUserLibrary_WhenUnexpectedErrorOccurs_ShouldReturnBadRequest()
-        {
-            // Arrange
-            var userId = Guid.NewGuid();
-            var errorMessage = "Erro inesperado";
-            _mockLibraryService
-                .Setup(s => s.GetUserLibraryAsync(userId))
-                .ThrowsAsync(new Exception(errorMessage));
-
-            // Act
-            var result = await _libraryController.GetUserLibrary(userId);
-
-            // Assert
-            result.Result.Should().BeOfType<BadRequestObjectResult>();
-            var badRequestResult = result.Result as BadRequestObjectResult;
-            badRequestResult.Should().NotBeNull();
-            badRequestResult!.Value.Should().Be(errorMessage);
-            _mockLibraryService.Verify(s => s.GetUserLibraryAsync(userId), Times.Once);
-        }
+        // Assert
+        var ok = result as OkObjectResult;
+        ok.ShouldNotBeNull();
+        var dtos = ok!.Value as IEnumerable<LibraryDto>;
+        dtos.ShouldNotBeNull();
+        dtos!.First().GameCode.ShouldBe(game.Code);
+        dtos.First().UserCode.ShouldBe(user.Code);
     }
 }

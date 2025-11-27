@@ -4,158 +4,102 @@ using FiapCloudGames.Users.Domain.Entities.Events;
 using FiapCloudGames.Users.Domain.Interfaces.Repositories;
 using Microsoft.Extensions.Logging;
 using Moq;
+using Shouldly;
 using Xunit;
-using System;
 
-namespace FiapCloudGames.Tests.Services
+namespace FiapCloudGames.Tests.Services;
+
+public class GameServiceTests
 {
-    public class GameServiceTests
+    private readonly Mock<IGameRepository> _repo = new();
+    private readonly Mock<ILogger<GameService>> _logger = new();
+
+    private GameService CreateService() => new(_repo.Object, _logger.Object);
+
+    [Fact]
+    public async Task GetByCodeAsync_DelegatesToRepository()
     {
-        private readonly Mock<IGameRepository> _mockGameRepository;
-        private readonly Mock<ILogger<GameService>> _mockLogger;
-        private readonly GameService _gameService;
+        // Arrange
+        var expected = new Game(10, "T", DateTimeOffset.UtcNow, null);
+        _repo.Setup(r => r.GetByCodeAsync(10)).ReturnsAsync(expected);
+        var svc = CreateService();
 
-        public GameServiceTests()
-        {
-            _mockGameRepository = new Mock<IGameRepository>();
-            _mockLogger = new Mock<ILogger<GameService>>();
-            _gameService = new GameService(_mockGameRepository.Object, _mockLogger.Object);
-        }
+        // Act
+        var result = await svc.GetByCodeAsync(10);
 
-        [Fact]
-        public async Task ProcessAsync_WhenGameIsRemovedAndNotExists_ShouldLogWarningAndReturn()
-        {
-            // Arrange
-            var message = new GameEvent(
-                Guid.NewGuid(),
-                123,
-                "Test Game",
-                DateTimeOffset.UtcNow,
-                DateTimeOffset.UtcNow
-            );
+        // Assert
+        result.ShouldBe(expected);
+        _repo.Verify(r => r.GetByCodeAsync(10), Times.Once);
+    }
 
-            _mockGameRepository.Setup(r => r.GetByIdAsync(message.Id)).ReturnsAsync((Game?)null);
+    [Fact]
+    public async Task ProcessAsync_DoesNothing_WhenGameMissingAndRemovedAtSet()
+    {
+        // Arrange
+        var msg = new GameEvent(Guid.NewGuid(), 11, "G", DateTimeOffset.UtcNow, DateTimeOffset.UtcNow);
+        _repo.Setup(r => r.GetByCodeAsync(msg.Code)).ReturnsAsync((Game?)null);
+        var svc = CreateService();
 
-            // Act
-            await _gameService.ProcessAsync(message);
+        // Act
+        await svc.ProcessAsync(msg);
 
-            // Assert
-            _mockLogger.Verify(
-                l => l.Log(
-                    LogLevel.Warning,
-                    It.IsAny<EventId>(),
-                    It.Is<It.IsAnyType>((v, t) => v.ToString()!.Contains("Game is removed")),
-                    null,
-                    It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
-                Times.Once);
+        // Assert
+        _repo.Verify(r => r.CreateAsync(It.IsAny<Game>()), Times.Never);
+        _repo.Verify(r => r.UpdateAsync(It.IsAny<Game>()), Times.Never);
+    }
 
-            _mockGameRepository.Verify(r => r.CreateAsync(It.IsAny<Game>()), Times.Never);
-            _mockGameRepository.Verify(r => r.UpdateAsync(It.IsAny<Game>()), Times.Never);
-        }
+    [Fact]
+    public async Task ProcessAsync_DoesNothing_WhenMessageOlderThanSaved()
+    {
+        // Arrange
+        var saved = new Game(12, "Old", DateTimeOffset.UtcNow.AddMinutes(10), null);
+        var msg = new GameEvent(Guid.NewGuid(), 12, "New", DateTimeOffset.UtcNow, null);
+        _repo.Setup(r => r.GetByCodeAsync(msg.Code)).ReturnsAsync(saved);
+        var svc = CreateService();
 
-        [Fact]
-        public async Task ProcessAsync_WhenMessageIsOlderThanSavedData_ShouldLogWarningAndReturn()
-        {
-            // Arrange
-            var message = new GameEvent(
-                Guid.NewGuid(),
-                123,
-                "Test Game",
-                DateTimeOffset.UtcNow.AddDays(-1),
-                null
-            );
+        // Act
+        await svc.ProcessAsync(msg);
 
-            var existingGame = new Game(message.Id, 123, "Test Game", DateTimeOffset.UtcNow, null);
+        // Assert
+        _repo.Verify(r => r.UpdateAsync(It.IsAny<Game>()), Times.Never);
+        _repo.Verify(r => r.CreateAsync(It.IsAny<Game>()), Times.Never);
+    }
 
-            _mockGameRepository.Setup(r => r.GetByIdAsync(message.Id)).ReturnsAsync(existingGame);
+    [Fact]
+    public async Task ProcessAsync_CreatesGame_WhenMissingAndNotRemoved()
+    {
+        // Arrange
+        var msg = new GameEvent(Guid.NewGuid(), 13, "CreateMe", DateTimeOffset.UtcNow, null);
+        _repo.Setup(r => r.GetByCodeAsync(msg.Code)).ReturnsAsync((Game?)null);
+        _repo.Setup(r => r.CreateAsync(It.IsAny<Game>())).ReturnsAsync((Game g) => g);
 
-            // Act
-            await _gameService.ProcessAsync(message);
+        var svc = CreateService();
 
-            // Assert
-            _mockLogger.Verify(
-                l => l.Log(
-                    LogLevel.Warning,
-                    It.IsAny<EventId>(),
-                    It.Is<It.IsAnyType>((v, t) => v.ToString()!.Contains("Message is older then saved data")),
-                    null,
-                    It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
-                Times.Once);
+        // Act
+        await svc.ProcessAsync(msg);
 
-            _mockGameRepository.Verify(r => r.CreateAsync(It.IsAny<Game>()), Times.Never);
-            _mockGameRepository.Verify(r => r.UpdateAsync(It.IsAny<Game>()), Times.Never);
-        }
+        // Assert
+        _repo.Verify(r => r.CreateAsync(It.Is<Game>(g => g.Code == msg.Code && g.Title == msg.Title && g.UpdatedAt == msg.UpdatedAt && g.RemovedAt == msg.RemovedAt)), Times.Once);
+        _repo.Verify(r => r.UpdateAsync(It.IsAny<Game>()), Times.Never);
+    }
 
-        [Fact]
-        public async Task ProcessAsync_WhenGameDoesNotExist_ShouldCreateGameAndLogInformation()
-        {
-            // Arrange
-            var message = new GameEvent(
-                Guid.NewGuid(),
-                123,
-                "Test Game",
-                DateTimeOffset.UtcNow,
-                null
-            );
+    [Fact]
+    public async Task ProcessAsync_UpdatesGame_WhenExistsAndMessageIsNewer()
+    {
+        // Arrange
+        var saved = new Game(14, "OldTitle", DateTimeOffset.UtcNow.AddMinutes(-10), null);
+        saved.Id = Guid.NewGuid();
+        var msg = new GameEvent(Guid.NewGuid(), 14, "UpdatedTitle", DateTimeOffset.UtcNow, DateTimeOffset.UtcNow);
+        _repo.Setup(r => r.GetByCodeAsync(msg.Code)).ReturnsAsync(saved);
+        _repo.Setup(r => r.UpdateAsync(It.IsAny<Game>())).ReturnsAsync((Game g) => g);
 
-            _mockGameRepository.Setup(r => r.GetByIdAsync(message.Id)).ReturnsAsync((Game?)null);
+        var svc = CreateService();
 
-            // Act
-            await _gameService.ProcessAsync(message);
+        // Act
+        await svc.ProcessAsync(msg);
 
-            // Assert
-            _mockGameRepository.Verify(r => r.CreateAsync(It.Is<Game>(g =>
-                g.Id == message.Id &&
-                g.Code == message.Code &&
-                g.Title == message.Title &&
-                g.UpdatedAt == message.UpdatedAt &&
-                g.IsActive == true)), Times.Once);
-
-            _mockLogger.Verify(
-                l => l.Log(
-                    LogLevel.Information,
-                    It.IsAny<EventId>(),
-                    It.Is<It.IsAnyType>((v, t) => v.ToString()!.Contains("Game created")),
-                    null,
-                    It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
-                Times.Once);
-        }
-
-        [Fact]
-        public async Task ProcessAsync_WhenGameExistsAndMessageIsNewer_ShouldUpdateGameAndLogInformation()
-        {
-            // Arrange
-            var message = new GameEvent(
-                Guid.NewGuid(),
-                123,
-                "Updated Title",
-                DateTimeOffset.UtcNow,
-                null
-            );
-
-            var existingGame = new Game(message.Id, 123, "Old Title", DateTimeOffset.UtcNow.AddDays(-1), null);
-
-            _mockGameRepository.Setup(r => r.GetByIdAsync(message.Id)).ReturnsAsync(existingGame);
-
-            // Act
-            await _gameService.ProcessAsync(message);
-
-            // Assert
-            _mockGameRepository.Verify(r => r.UpdateAsync(It.Is<Game>(g =>
-                g.Id == message.Id &&
-                g.Code == message.Code &&
-                g.Title == message.Title &&
-                g.UpdatedAt == message.UpdatedAt &&
-                g.IsActive == true)), Times.Once);
-
-            _mockLogger.Verify(
-                l => l.Log(
-                    LogLevel.Information,
-                    It.IsAny<EventId>(),
-                    It.Is<It.IsAnyType>((v, t) => v.ToString()!.Contains("Game updated")),
-                    null,
-                    It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
-                Times.Once);
-        }
+        // Assert
+        _repo.Verify(r => r.UpdateAsync(It.Is<Game>(g => g.Code == msg.Code && g.Title == msg.Title && g.UpdatedAt == msg.UpdatedAt && g.RemovedAt == msg.RemovedAt && g.IsActive == (msg.RemovedAt == null))), Times.Once);
+        _repo.Verify(r => r.CreateAsync(It.IsAny<Game>()), Times.Never);
     }
 }

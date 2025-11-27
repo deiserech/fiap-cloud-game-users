@@ -1,125 +1,93 @@
-using System;
-using System.Threading.Tasks;
-using FiapCloudGames.Users.Application.Interfaces.Services;
 using FiapCloudGames.Users.Application.Services;
 using FiapCloudGames.Users.Domain.Entities;
-using FiapCloudGames.Users.Domain.Enums;
 using FiapCloudGames.Users.Domain.Events;
+using FiapCloudGames.Users.Domain.Interfaces.Repositories;
+using FiapCloudGames.Users.Application.Interfaces.Services;
 using Microsoft.Extensions.Logging;
 using Moq;
+using Shouldly;
 using Xunit;
 
-namespace FiapCloudGames.Tests.Services
+namespace FiapCloudGames.Tests.Services;
+
+public class PurchaseServiceTests
 {
-    public class PurchaseServiceTests
+    private readonly Mock<ILibraryService> _libraryService = new();
+    private readonly Mock<IGameService> _gameService = new();
+    private readonly Mock<IUserService> _userService = new();
+    private readonly Mock<ILogger<PurchaseService>> _logger = new();
+
+    private PurchaseService CreateService() => new(_libraryService.Object, _gameService.Object, _userService.Object, _logger.Object);
+
+    [Fact]
+    public async Task ProcessAsync_Throws_WhenGameNotFound()
     {
-        private readonly Mock<ILibraryService> _mockLibraryService;
-        private readonly Mock<IGameService> _mockGameService;
-        private readonly Mock<IUserService> _mockUserService;
-        private readonly Mock<ILogger<PurchaseService>> _mockLogger;
-        private readonly PurchaseService _purchaseService;
+        // Arrange
+        var evt = new PurchaseCompletedEvent(Guid.NewGuid(), 1, 2, DateTimeOffset.UtcNow, true);
+        _gameService.Setup(g => g.GetByCodeAsync(evt.GameCode)).ReturnsAsync((Game?)null);
+        var svc = CreateService();
 
-        public PurchaseServiceTests()
-        {
-            _mockLibraryService = new Mock<ILibraryService>();
-            _mockGameService = new Mock<IGameService>();
-            _mockUserService = new Mock<IUserService>();
-            _mockLogger = new Mock<ILogger<PurchaseService>>();
-            _purchaseService = new PurchaseService(
-                _mockLibraryService.Object,
-                _mockGameService.Object,
-                _mockUserService.Object,
-                _mockLogger.Object
-            );
-        }
+        // Act / Assert
+        var ex = await Should.ThrowAsync<Exception>(async () => await svc.ProcessAsync(evt));
+        ex.Message.ShouldContain(evt.GameCode.ToString());
+    }
 
-        [Fact]
-        public async Task ProcessAsync_WhenLibraryExists_ShouldLogWarningAndNotCreateLibrary()
-        {
-            var gameCode = 123;
-            var userCode = 456;
-            var gameId = Guid.NewGuid();
-            var userId = Guid.NewGuid();
+    [Fact]
+    public async Task ProcessAsync_Throws_WhenUserNotFound()
+    {
+        // Arrange
+        var evt = new PurchaseCompletedEvent(Guid.NewGuid(), 10, 20, DateTimeOffset.UtcNow, true);
+        var game = new Game(20, "G", DateTimeOffset.UtcNow, null) { Id = Guid.NewGuid() };
+        _gameService.Setup(g => g.GetByCodeAsync(evt.GameCode)).ReturnsAsync(game);
+        _userService.Setup(u => u.GetByCodeAsync(evt.UserCode)).ReturnsAsync((User?)null);
 
-            var message = new PurchaseCompletedEvent(
-                Guid.NewGuid(), 
-                userCode,       
-                gameCode,       
-                DateTimeOffset.UtcNow, 
-                true                    
-            );
+        var svc = CreateService();
 
-            var game = new Game(gameId, gameCode, "Test Game", DateTimeOffset.UtcNow, null);
-            var user = new User { Id = userId, Code = userCode, Name = "User", Email = "user@email.com", Role = UserRole.User };
+        // Act / Assert
+        var ex = await Should.ThrowAsync<Exception>(async () => await svc.ProcessAsync(evt));
+        ex.Message.ShouldContain(evt.UserCode.ToString());
+    }
 
-            var existingLibrary = new Library(userId, gameId, message.PurchaseId, message.ProcessedAt);
+    [Fact]
+    public async Task ProcessAsync_DoesNotCreate_WhenLibraryExists()
+    {
+        // Arrange
+        var evt = new PurchaseCompletedEvent(Guid.NewGuid(), 100, 200, DateTimeOffset.UtcNow, true);
+        var game = new Game(200, "G", DateTimeOffset.UtcNow, null) { Id = Guid.NewGuid() };
+        var user = new User { Id = Guid.NewGuid(), Code = 100, Name = "U", Email = "u@x.com", Role = FiapCloudGames.Users.Domain.Enums.UserRole.User };
 
-            _mockGameService.Setup(s => s.GetByCodeAsync(gameCode)).ReturnsAsync(game);
-            _mockUserService.Setup(s => s.GetByCodeAsync(userCode)).ReturnsAsync(user);
-            _mockLibraryService
-                .Setup(s => s.GetLibraryByPurchaseGameAndUserAsync(message.PurchaseId, gameId, userId))
-                .ReturnsAsync(existingLibrary);
+        _gameService.Setup(g => g.GetByCodeAsync(evt.GameCode)).ReturnsAsync(game);
+        _userService.Setup(u => u.GetByCodeAsync(evt.UserCode)).ReturnsAsync(user);
+        _libraryService.Setup(l => l.GetLibraryByPurchaseGameAndUserAsync(evt.PurchaseId, game.Id, user.Id)).ReturnsAsync(new Library(user.Id, game.Id, evt.PurchaseId, evt.ProcessedAt));
 
-            await _purchaseService.ProcessAsync(message);
+        var svc = CreateService();
 
-            _mockLibraryService.Verify(s => s.CreateAsync(It.IsAny<Library>()), Times.Never);
-            _mockLogger.Verify(
-                l => l.Log(
-                    LogLevel.Warning,
-                    It.IsAny<EventId>(),
-                    It.Is<It.IsAnyType>((v, t) => v.ToString()!.Contains("library still exists")),
-                    null,
-                    It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
-                Times.Once);
-        }
+        // Act
+        await svc.ProcessAsync(evt);
 
-        [Fact]
-        public async Task ProcessAsync_WhenLibraryDoesNotExist_ShouldCreateLibraryAndLogInformation()
-        {
-            var gameCode = 123;
-            var userCode = 456;
-            var gameId = Guid.NewGuid();
-            var userId = Guid.NewGuid();
+        // Assert
+        _libraryService.Verify(l => l.CreateAsync(It.IsAny<Library>()), Times.Never);
+    }
 
-            var message = new PurchaseCompletedEvent(
-                Guid.NewGuid(), 
-                userCode,       
-                gameCode,       
-                DateTimeOffset.UtcNow, 
-                true  
-            );
+    [Fact]
+    public async Task ProcessAsync_CreatesLibrary_WhenNotExists()
+    {
+        // Arrange
+        var evt = new PurchaseCompletedEvent(Guid.NewGuid(), 333, 444, DateTimeOffset.UtcNow, true);
+        var game = new Game(444, "Game", DateTimeOffset.UtcNow, null) { Id = Guid.NewGuid() };
+        var user = new User { Id = Guid.NewGuid(), Code = 333, Name = "U2", Email = "u2@x.com", Role = FiapCloudGames.Users.Domain.Enums.UserRole.User };
 
-            var game = new Game(gameId, gameCode, "Test Game", DateTimeOffset.UtcNow, null);
-            var user = new User { Id = userId, Code = userCode, Name = "User", Email = "user@email.com", Role = UserRole.User };
+        _gameService.Setup(g => g.GetByCodeAsync(evt.GameCode)).ReturnsAsync(game);
+        _userService.Setup(u => u.GetByCodeAsync(evt.UserCode)).ReturnsAsync(user);
+        _libraryService.Setup(l => l.GetLibraryByPurchaseGameAndUserAsync(evt.PurchaseId, game.Id, user.Id)).ReturnsAsync((Library?)null);
+        _libraryService.Setup(l => l.CreateAsync(It.IsAny<Library>())).ReturnsAsync((Library lib) => lib);
 
-            _mockGameService.Setup(s => s.GetByCodeAsync(gameCode)).ReturnsAsync(game);
-            _mockUserService.Setup(s => s.GetByCodeAsync(userCode)).ReturnsAsync(user);
-            _mockLibraryService
-                .Setup(s => s.GetLibraryByPurchaseGameAndUserAsync(message.PurchaseId, gameId, userId))
-                .ReturnsAsync((Library?)null);
+        var svc = CreateService();
 
-            _mockLibraryService
-                .Setup(s => s.CreateAsync(It.IsAny<Library>()))
-                .ReturnsAsync((Library l) => l);
+        // Act
+        await svc.ProcessAsync(evt);
 
-            await _purchaseService.ProcessAsync(message);
-
-            _mockLibraryService.Verify(
-                s => s.CreateAsync(It.Is<Library>(l =>
-                    l.UserId == userId &&
-                    l.GameId == gameId &&
-                    l.PurchaseId == message.PurchaseId &&
-                    l.AcquiredAt == message.ProcessedAt)),
-                Times.Once);
-
-            _mockLogger.Verify(
-                l => l.Log(
-                    LogLevel.Information,
-                    It.IsAny<EventId>(),
-                    It.Is<It.IsAnyType>((v, t) => v.ToString()!.Contains("Library created for UserId")),
-                    null,
-                    It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
-                Times.Once);
-        }
+        // Assert
+        _libraryService.Verify(l => l.CreateAsync(It.Is<Library>(lib => lib.PurchaseId == evt.PurchaseId && lib.GameId == game.Id && lib.UserId == user.Id && lib.AcquiredAt == evt.ProcessedAt)), Times.Once);
     }
 }

@@ -1,116 +1,85 @@
-using FiapCloudGames.Users.Application.Interfaces.Services;
 using FiapCloudGames.Users.Application.Services;
 using FiapCloudGames.Users.Domain.Entities;
+using FiapCloudGames.Users.Domain.Entities.Events;
 using FiapCloudGames.Users.Domain.Interfaces.Repositories;
-using FluentAssertions;
+using FiapCloudGames.Users.Application.Interfaces.Services;
 using Microsoft.Extensions.Logging;
 using Moq;
+using Shouldly;
 using Xunit;
 
-namespace FiapCloudGames.Tests.Services
+namespace FiapCloudGames.Tests.Services;
+
+public class LibraryServiceTests
 {
-    public class LibraryServiceTests
+    private readonly Mock<ILibraryRepository> _libraryRepo = new();
+    private readonly Mock<IUserService> _userService = new();
+    private readonly Mock<ILogger<LibraryService>> _logger = new();
+
+    private LibraryService CreateService() => new(_libraryRepo.Object, _userService.Object, _logger.Object);
+
+    [Fact]
+    public async Task GetUserLibraryAsync_ReturnsLibrary_WhenUserExists()
     {
-        private readonly Mock<ILibraryRepository> _mockLibraryRepository;
-        private readonly Mock<IUserService> _mockUserService;
-        private readonly Mock<ILogger<LibraryService>> _mockLogger;
-        private readonly LibraryService _libraryService;
+        // Arrange
+        var user = new User { Id = Guid.NewGuid(), Code = 7, Name = "U", Email = "u@x.com", Role = FiapCloudGames.Users.Domain.Enums.UserRole.User };
+        var entries = new[] { new Library(user.Id, Guid.NewGuid(), Guid.NewGuid(), DateTimeOffset.UtcNow) { Id = Guid.NewGuid(), User = user } };
 
-        public LibraryServiceTests()
-        {
-            _mockLibraryRepository = new Mock<ILibraryRepository>();
-            _mockUserService = new Mock<IUserService>();
-            _mockLogger = new Mock<ILogger<LibraryService>>();
-            _libraryService = new LibraryService(_mockLibraryRepository.Object, _mockUserService.Object, _mockLogger.Object);
-        }
+        _userService.Setup(s => s.GetByCodeAsync(user.Code)).ReturnsAsync(user);
+        _libraryRepo.Setup(r => r.GetByUserIdAsync(user.Id)).ReturnsAsync(entries);
 
-        [Fact]
-        public async Task GetUserLibraryAsync_WithExistingUser_ShouldReturnLibraryGames()
-        {
-            // Arrange
-            var userId = Guid.NewGuid();
-            var expectedGames = new List<Library>
-            {
-                new Library(userId, Guid.NewGuid(), Guid.NewGuid(), DateTimeOffset.UtcNow)
-            };
+        var svc = CreateService();
 
-            _mockLibraryRepository.Setup(r => r.GetByUserIdAsync(userId)).ReturnsAsync(expectedGames);
+        // Act
+        var result = await svc.GetUserLibraryAsync(user.Code);
 
-            // Act
-            var result = await _libraryService.GetUserLibraryAsync(userId);
+        // Assert
+        result.ShouldNotBeNull();
+        result.ShouldBe(entries);
+        _userService.Verify(s => s.GetByCodeAsync(user.Code), Times.Once);
+        _libraryRepo.Verify(r => r.GetByUserIdAsync(user.Id), Times.Once);
+    }
 
-            // Assert
-            result.Should().BeEquivalentTo(expectedGames);
-            _mockLibraryRepository.Verify(r => r.GetByUserIdAsync(userId), Times.Once);
-        }
+    [Fact]
+    public async Task GetUserLibraryAsync_ThrowsArgumentException_WhenUserNotFound()
+    {
+        // Arrange
+        _userService.Setup(s => s.GetByCodeAsync(It.IsAny<int>())).ReturnsAsync((User?)null);
+        var svc = CreateService();
 
-        [Fact]
-        public async Task GetLibraryByPurchaseGameAndUserAsync_WithExistingLibrary_ShouldReturnLibrary()
-        {
-            // Arrange
-            var purchaseId = Guid.NewGuid();
-            var gameId = Guid.NewGuid();
-            var userId = Guid.NewGuid();
-            var expectedLibrary = new Library(userId, gameId, purchaseId, DateTimeOffset.UtcNow);
+        // Act / Assert
+        await Should.ThrowAsync<ArgumentException>(async () => await svc.GetUserLibraryAsync(999));
+    }
 
-            _mockLibraryRepository.Setup(r => r.GetByPurchaseGameAndUserAsync(purchaseId, gameId, userId)).ReturnsAsync(expectedLibrary);
+    [Fact]
+    public async Task GetLibraryByPurchaseGameAndUserAsync_DelegatesToRepository()
+    {
+        // Arrange
+        var lib = new Library(Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), DateTimeOffset.UtcNow) { Id = Guid.NewGuid() };
+        _libraryRepo.Setup(r => r.GetByPurchaseGameAndUserAsync(lib.PurchaseId, lib.GameId, lib.UserId)).ReturnsAsync(lib);
+        var svc = CreateService();
 
-            // Act
-            var result = await _libraryService.GetLibraryByPurchaseGameAndUserAsync(purchaseId, gameId, userId);
+        // Act
+        var result = await svc.GetLibraryByPurchaseGameAndUserAsync(lib.PurchaseId, lib.GameId, lib.UserId);
 
-            // Assert
-            result.Should().BeEquivalentTo(expectedLibrary);
-            _mockLibraryRepository.Verify(r => r.GetByPurchaseGameAndUserAsync(purchaseId, gameId, userId), Times.Once);
-        }
+        // Assert
+        result.ShouldBe(lib);
+        _libraryRepo.Verify(r => r.GetByPurchaseGameAndUserAsync(lib.PurchaseId, lib.GameId, lib.UserId), Times.Once);
+    }
 
-        [Fact]
-        public async Task UserOwnsGameAsync_WhenExists_ShouldReturnTrue()
-        {
-            // Arrange
-            var userId = Guid.NewGuid();
-            var gameId = Guid.NewGuid();
+    [Fact]
+    public async Task CreateAsync_DelegatesToRepository()
+    {
+        // Arrange
+        var lib = new Library(Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), DateTimeOffset.UtcNow) { Id = Guid.NewGuid() };
+        _libraryRepo.Setup(r => r.CreateAsync(lib)).ReturnsAsync(lib);
+        var svc = CreateService();
 
-            _mockLibraryRepository.Setup(r => r.ExistsAsync(userId, gameId)).ReturnsAsync(true);
+        // Act
+        var result = await svc.CreateAsync(lib);
 
-            // Act
-            var result = await _libraryService.UserOwnsGameAsync(userId, gameId);
-
-            // Assert
-            result.Should().BeTrue();
-            _mockLibraryRepository.Verify(r => r.ExistsAsync(userId, gameId), Times.Once);
-        }
-
-        [Fact]
-        public async Task UserOwnsGameAsync_WhenNotExists_ShouldReturnFalse()
-        {
-            // Arrange
-            var userId = Guid.NewGuid();
-            var gameId = Guid.NewGuid();
-
-            _mockLibraryRepository.Setup(r => r.ExistsAsync(userId, gameId)).ReturnsAsync(false);
-
-            // Act
-            var result = await _libraryService.UserOwnsGameAsync(userId, gameId);
-
-            // Assert
-            result.Should().BeFalse();
-            _mockLibraryRepository.Verify(r => r.ExistsAsync(userId, gameId), Times.Once);
-        }
-
-        [Fact]
-        public async Task CreateAsync_ShouldCreateLibraryAndReturnIt()
-        {
-            // Arrange
-            var library = new Library(Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), DateTimeOffset.UtcNow);
-
-            _mockLibraryRepository.Setup(r => r.CreateAsync(library)).ReturnsAsync(library);
-
-            // Act
-            var result = await _libraryService.CreateAsync(library);
-
-            // Assert
-            result.Should().BeEquivalentTo(library);
-            _mockLibraryRepository.Verify(r => r.CreateAsync(library), Times.Once);
-        }
+        // Assert
+        result.ShouldBe(lib);
+        _libraryRepo.Verify(r => r.CreateAsync(lib), Times.Once);
     }
 }

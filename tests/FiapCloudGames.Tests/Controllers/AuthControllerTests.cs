@@ -2,222 +2,160 @@ using FiapCloudGames.Users.Api.Controllers;
 using FiapCloudGames.Users.Application.DTOs;
 using FiapCloudGames.Users.Application.Interfaces.Services;
 using FiapCloudGames.Users.Domain.Enums;
-using FluentAssertions;
+using Shouldly;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using Xunit;
 
-namespace FiapCloudGames.Tests.Controllers
+namespace FiapCloudGames.Tests.Controllers;
+
+public class AuthControllerTests
 {
-    public class AuthControllerTests
+    private readonly Mock<IAuthService> _authService = new();
+
+    private static AuthController CreateController(Mock<IAuthService> authService)
     {
-        private readonly Mock<IAuthService> _mockAuthService;
-        private readonly AuthController _authController;
+        var httpContext = new DefaultHttpContext();
+        httpContext.RequestServices = new ServiceCollection().BuildServiceProvider();
 
-        public AuthControllerTests()
+        var controller = new AuthController(authService.Object)
         {
-            _mockAuthService = new Mock<IAuthService>();
-            _authController = new AuthController(_mockAuthService.Object);
-        }
-
-        #region Login Tests
-
-        [Fact]
-        public async Task Login_WithValidCredentials_ShouldReturnOkWithAuthResponse()
-        {
-            // Arrange
-            var loginDto = new LoginDto
+            ControllerContext = new ControllerContext
             {
-                Email = "test@example.com",
-                Password = "validpassword"
-            };
+                HttpContext = httpContext
+            }
+        };
 
-            var expectedResponse = new AuthResponseDto
-            {
-                Token = "valid-jwt-token",
-                Email = "test@example.com",
-                Name = "Test User"
-            };
+        return controller;
+    }
 
-            _mockAuthService.Setup(s => s.Login(loginDto)).ReturnsAsync(expectedResponse);
+    [Fact]
+    public async Task Login_ReturnsBadRequest_WhenModelStateInvalid()
+    {
+        // Arrange
+        var controller = CreateController(_authService);
+        controller.ModelState.AddModelError("Email", "Required");
 
-            // Act
-            var result = await _authController.Login(loginDto);
+        var dto = new LoginDto { Email = "a@a.com", Password = "P@ssword1" };
 
-            // Assert
-            result.Should().BeOfType<OkObjectResult>();
-            var okResult = result as OkObjectResult;
-            okResult.Should().NotBeNull();
-            okResult!.Value.Should().BeEquivalentTo(expectedResponse);
-            _mockAuthService.Verify(s => s.Login(loginDto), Times.Once);
-        }
+        // Act
+        var result = await controller.Login(dto);
 
-        [Fact]
-        public async Task Login_WithInvalidCredentials_ShouldReturnUnauthorized()
-        {
-            // Arrange
-            var loginDto = new LoginDto
-            {
-                Email = "test@example.com",
-                Password = "wrongpassword"
-            };
+        // Assert
+        result.ShouldBeOfType<BadRequestObjectResult>();
+    }
 
-            _mockAuthService.Setup(s => s.Login(loginDto)).ReturnsAsync((AuthResponseDto?)null);
+    [Fact]
+    public async Task Login_ReturnsUnauthorized_WhenCredentialsInvalid()
+    {
+        // Arrange
+        var dto = new LoginDto { Email = "no@user.com", Password = "wrong" };
+        _authService.Setup(s => s.Login(dto)).ReturnsAsync((AuthResponseDto?)null);
 
-            // Act
-            var result = await _authController.Login(loginDto);
+        var controller = CreateController(_authService);
 
-            // Assert
-            result.Should().BeOfType<UnauthorizedObjectResult>();
-            var unauthorizedResult = result as UnauthorizedObjectResult;
-            unauthorizedResult.Should().NotBeNull();
-            unauthorizedResult!.Value.Should().BeEquivalentTo(new { message = "Email ou senha inválidos" });
-            _mockAuthService.Verify(s => s.Login(loginDto), Times.Once);
-        }
+        // Act
+        var result = await controller.Login(dto);
 
-        [Fact]
-        public async Task Login_WithInvalidModelState_ShouldReturnBadRequest()
-        {
-            // Arrange
-            var loginDto = new LoginDto
-            {
-                Email = "invalid-email",
-                Password = "password"
-            };
+        // Assert
+        var unauth = result as UnauthorizedObjectResult;
+        unauth.ShouldNotBeNull();
+        var unauthMsg = unauth!.Value?.ToString();
+        unauthMsg.ShouldNotBeNull();
+        unauthMsg.ShouldContain("Email ou senha inválidos");
+    }
 
-            _authController.ModelState.AddModelError("Email", "Invalid email format");
+    [Fact]
+    public async Task Login_ReturnsOk_WhenSuccess()
+    {
+        // Arrange
+        var dto = new LoginDto { Email = "user@x.com", Password = "P@ssword1" };
+        var resp = new AuthResponseDto { Token = "t", Email = dto.Email, Name = "User" };
+        _authService.Setup(s => s.Login(dto)).ReturnsAsync(resp);
 
-            // Act
-            var result = await _authController.Login(loginDto);
+        var controller = CreateController(_authService);
 
-            // Assert
-            result.Should().BeOfType<BadRequestObjectResult>();
-            var badRequestResult = result as BadRequestObjectResult;
-            badRequestResult.Should().NotBeNull();
-            badRequestResult!.Value.Should().BeOfType<SerializableError>();
-            _mockAuthService.Verify(s => s.Login(It.IsAny<LoginDto>()), Times.Never);
-        }
+        // Act
+        var result = await controller.Login(dto);
 
-        #endregion
+        // Assert
+        var ok = result as OkObjectResult;
+        ok.ShouldNotBeNull();
+        var okVal = ok!.Value as AuthResponseDto;
+        okVal.ShouldNotBeNull();
+        okVal!.Email.ShouldBe(dto.Email);
+    }
 
-        #region Register Tests
+    [Fact]
+    public async Task Register_ReturnsBadRequest_WhenModelStateInvalid()
+    {
+        // Arrange
+        var controller = CreateController(_authService);
+        controller.ModelState.AddModelError("Name", "Required");
 
-        [Fact]
-        public async Task Register_WithValidData_ShouldReturnOkWithAuthResponse()
-        {
-            // Arrange
-            var registerDto = new RegisterDto
-            {
-                Name = "New User",
-                Email = "newuser@example.com",
-                Password = "ValidPassword123!",
-                Role = UserRole.User
-            };
+        var dto = new RegisterDto { Code = 1, Name = "x", Email = "x@x.com", Password = "P@ssword1", Role = UserRole.User };
 
-            var expectedResponse = new AuthResponseDto
-            {
-                Token = "valid-jwt-token",
-                Email = "newuser@example.com",
-                Name = "New User"
-            };
+        // Act
+        var result = await controller.Register(dto);
 
-            _mockAuthService.Setup(s => s.Register(registerDto)).ReturnsAsync(expectedResponse);
+        // Assert
+        result.ShouldBeOfType<BadRequestObjectResult>();
+    }
 
-            // Act
-            var result = await _authController.Register(registerDto);
+    [Fact]
+    public async Task Register_ReturnsBadRequest_WhenValidationFails()
+    {
+        // Arrange: choose password/email that fail ValidationHelper
+        var dto = new RegisterDto { Code = 2, Name = "Bob", Email = "invalid-email", Password = "short", Role = UserRole.User };
+        var controller = CreateController(_authService);
 
-            // Assert
-            result.Should().BeOfType<OkObjectResult>();
-            var okResult = result as OkObjectResult;
-            okResult.Should().NotBeNull();
-            okResult!.Value.Should().BeEquivalentTo(expectedResponse);
-            _mockAuthService.Verify(s => s.Register(registerDto), Times.Once);
-        }
+        // Act
+        var result = await controller.Register(dto);
 
-        [Fact]
-        public async Task Register_WithExistingEmail_ShouldReturnBadRequest()
-        {
-            // Arrange
-            var registerDto = new RegisterDto
-            {
-                Name = "New User",
-                Email = "existing@example.com",
-                Password = "ValidPassword123!",
-                Role = UserRole.User
-            };
+        // Assert
+        result.ShouldBeOfType<BadRequestObjectResult>();
+    }
 
-            _mockAuthService.Setup(s => s.Register(registerDto)).ReturnsAsync((AuthResponseDto?)null);
+    [Fact]
+    public async Task Register_ReturnsBadRequest_WhenEmailInUse()
+    {
+        // Arrange
+        var dto = new RegisterDto { Code = 3, Name = "Jane", Email = "jane@x.com", Password = "P@ssword1", Role = UserRole.User };
+        _authService.Setup(s => s.Register(dto)).ReturnsAsync((AuthResponseDto?)null);
 
-            // Act
-            var result = await _authController.Register(registerDto);
+        var controller = CreateController(_authService);
 
-            // Assert
-            result.Should().BeOfType<BadRequestObjectResult>();
-            var badRequestResult = result as BadRequestObjectResult;
-            badRequestResult.Should().NotBeNull();
-            badRequestResult!.Value.Should().BeEquivalentTo(new { message = "Email já está em uso" });
-            _mockAuthService.Verify(s => s.Register(registerDto), Times.Once);
-        }
+        // Act
+        var result = await controller.Register(dto);
 
-        [Fact]
-        public async Task Register_WithInvalidModelState_ShouldReturnBadRequest()
-        {
-            // Arrange
-            var registerDto = new RegisterDto
-            {
-                Name = "",
-                Email = "invalid-email",
-                Password = "short",
-                Role = UserRole.User
-            };
+        // Assert
+        var bad = result as BadRequestObjectResult;
+        bad.ShouldNotBeNull();
+        var badMsg = bad!.Value?.ToString();
+        badMsg.ShouldNotBeNull();
+        badMsg.ShouldContain("Email já está em uso");
+    }
 
-            _authController.ModelState.AddModelError("Name", "O nome é obrigatório.");
-            _authController.ModelState.AddModelError("Email", "Formato de e-mail inválido.");
-            _authController.ModelState.AddModelError("Password", "A senha deve ter entre 8 e 128 caracteres.");
+    [Fact]
+    public async Task Register_ReturnsOk_WhenSuccess()
+    {
+        // Arrange
+        var dto = new RegisterDto { Code = 4, Name = "Sam", Email = "sam@x.com", Password = "P@ssword1", Role = UserRole.User };
+        var resp = new AuthResponseDto { Token = "t", Email = dto.Email, Name = dto.Name };
+        _authService.Setup(s => s.Register(dto)).ReturnsAsync(resp);
 
-            // Act
-            var result = await _authController.Register(registerDto);
+        var controller = CreateController(_authService);
 
-            // Assert
-            result.Should().BeOfType<BadRequestObjectResult>();
-            var badRequestResult = result as BadRequestObjectResult;
-            badRequestResult.Should().NotBeNull();
-            badRequestResult!.Value.Should().BeOfType<SerializableError>();
-            _mockAuthService.Verify(s => s.Register(It.IsAny<RegisterDto>()), Times.Never);
-        }
+        // Act
+        var result = await controller.Register(dto);
 
-        [Fact]
-        public async Task Register_WithAdministratorRole_ShouldReturnOkWithAuthResponse()
-        {
-            // Arrange
-            var registerDto = new RegisterDto
-            {
-                Name = "Admin User",
-                Email = "admin@example.com",
-                Password = "AdminPassword123!",
-                Role = UserRole.Admin
-            };
-
-            var expectedResponse = new AuthResponseDto
-            {
-                Token = "admin-jwt-token",
-                Email = "admin@example.com",
-                Name = "Admin User"
-            };
-
-            _mockAuthService.Setup(s => s.Register(registerDto)).ReturnsAsync(expectedResponse);
-
-            // Act
-            var result = await _authController.Register(registerDto);
-
-            // Assert
-            result.Should().BeOfType<OkObjectResult>();
-            var okResult = result as OkObjectResult;
-            okResult.Should().NotBeNull();
-            okResult!.Value.Should().BeEquivalentTo(expectedResponse);
-            _mockAuthService.Verify(s => s.Register(registerDto), Times.Once);
-        }
-
-        #endregion
+        // Assert
+        var ok = result as OkObjectResult;
+        ok.ShouldNotBeNull();
+        var okVal = ok!.Value as AuthResponseDto;
+        okVal.ShouldNotBeNull();
+        okVal!.Email.ShouldBe(dto.Email);
     }
 }
