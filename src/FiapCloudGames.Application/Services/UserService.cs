@@ -25,13 +25,6 @@ namespace FiapCloudGames.Users.Application.Services
             return await _repo.GetByIdAsync(id);
         }
 
-        public async Task<bool> ExistsAsync(Guid id)
-        {
-            using var activity = Tracing.ActivitySource.StartActivity($"{nameof(UserService)}.ExistsAsync");
-            _logger.LogInformation("Verificando existência do usuário: {Id}", id);
-            return await _repo.ExistsAsync(id);
-        }
-
         public async Task<User> CreateUserAsync(RegisterDto registerDto)
         {
             using var activity = Tracing.ActivitySource.StartActivity($"{nameof(UserService)}.CreateUserAsync");

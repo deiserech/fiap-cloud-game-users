@@ -20,7 +20,6 @@ namespace FiapCloudGames.Users.Application.Services
         public async Task<Game?> GetByCodeAsync(int code)
         {
             _logger.LogInformation("Buscando jogo por código: {Code}", code);
-            // Implemente GetByCodeAsync no IGameRepository
             return await _repo.GetByCodeAsync(code);
         }
 

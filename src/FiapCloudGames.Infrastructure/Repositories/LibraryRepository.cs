@@ -53,11 +53,5 @@ namespace FiapCloudGames.Users.Infrastructure.Repositories
             await _context.SaveChangesAsync();
             return await GetByIdAsync(library.Id) ?? library;
         }
-
-        public async Task<bool> ExistsAsync(Guid userId, Guid gameId)
-        {
-            return await _context.Libraries
-                .AnyAsync(l => l.UserId == userId && l.GameId == gameId);
-        }
     }
 }

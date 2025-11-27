@@ -1,4 +1,3 @@
-using FiapCloudGames.Users.Application.DTOs;
 using FiapCloudGames.Users.Domain.Entities;
 using FiapCloudGames.Users.Domain.Entities.Events;
 

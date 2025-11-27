@@ -41,6 +41,9 @@ builder.Services.Configure<ServiceBusOptions>(opts =>
 });
 builder.Services.AddSingleton<IServiceBusClientWrapper, ServiceBusClientWrapper>();
 
+builder.Services.AddScoped<IGameMessageHandler, GameMessageHandler>();
+builder.Services.AddScoped<IPurchaseMessageHandler, PurchaseMessageHandler>();
+
 builder.Services.AddHostedService<PurchaseCompletedConsumer>();
 builder.Services.AddHostedService<GameConsumer>();
 

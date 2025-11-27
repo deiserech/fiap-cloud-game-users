@@ -36,11 +36,6 @@ namespace FiapCloudGames.Users.Application.Services
             return await _libraryRepository.GetByPurchaseGameAndUserAsync(purchaseId, gameId, userId);
         }
 
-        public async Task<bool> UserOwnsGameAsync(Guid userId, Guid gameId)
-        {
-            return await _libraryRepository.ExistsAsync(userId, gameId);
-        }
-
         public async Task<Library> CreateAsync(Library library)
         {
             return await _libraryRepository.CreateAsync(library);

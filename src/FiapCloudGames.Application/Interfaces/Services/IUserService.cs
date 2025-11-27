@@ -8,6 +8,5 @@ namespace FiapCloudGames.Users.Application.Interfaces.Services
         Task<User?> GetByIdAsync(Guid id);
         Task<User?> GetByCodeAsync(int code);
         Task<User> CreateUserAsync(RegisterDto user);
-        Task<bool> ExistsAsync(Guid id);
     }
 }

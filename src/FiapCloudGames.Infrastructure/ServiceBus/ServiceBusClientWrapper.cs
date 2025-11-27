@@ -19,5 +19,11 @@ namespace FiapCloudGames.Users.Infrastructure.ServiceBus
 
         public ServiceBusProcessor CreateProcessor(string topicName, string subscriptionName, ServiceBusProcessorOptions? options = null)
             => _client.CreateProcessor(topicName, subscriptionName, options ?? new ServiceBusProcessorOptions { MaxConcurrentCalls = 1, AutoCompleteMessages = false });
+
+        public IServiceBusProcessor CreateProcessorWrapper(string topicName, string subscriptionName, ServiceBusProcessorOptions? options = null)
+        {
+            var processor = _client.CreateProcessor(topicName, subscriptionName, options ?? new ServiceBusProcessorOptions { MaxConcurrentCalls = 1, AutoCompleteMessages = false });
+            return new ServiceBusProcessorWrapper(processor);
+        }
     }
 }

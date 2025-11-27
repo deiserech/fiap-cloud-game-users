@@ -44,15 +44,6 @@ namespace FiapCloudGames.Users.Infrastructure.Repositories
                 .FirstOrDefaultAsync(u => u.Email == email || u.Code == code);
         }
 
-        public async Task<IEnumerable<User>> GetAllAsync()
-        {
-            _logger.LogDebug("Listando todos os usuários");
-            return await _context.Users
-                .Include(u => u.LibraryGames)
-                    .ThenInclude(l => l.Game)
-                .ToListAsync();
-        }
-
         public async Task<User> CreateAsync(User user)
         {
             _logger.LogDebug("Criando usuário: {Email}", user.Email);
@@ -61,33 +52,11 @@ namespace FiapCloudGames.Users.Infrastructure.Repositories
             return await GetByIdAsync(user.Id) ?? user;
         }
 
-        public async Task<User> UpdateAsync(User user)
-        {
-            _logger.LogDebug("Atualizando usuário: {Email}", user.Email);
-            await _context.SaveChangesAsync();
-            return await GetByIdAsync(user.Id) ?? user;
-        }
-
-        public async Task DeleteAsync(Guid id)
-        {
-            _logger.LogDebug("Deletando usuário por ID: {Id}", id);
-            var user = await _context.Users.FindAsync(id);
-            if (user != null)
-            {
-                _context.Users.Remove(user);
-                await _context.SaveChangesAsync();
-            }
-        }
-
-        public async Task<bool> ExistsAsync(Guid id)
-        {
-            return await _context.Users.AnyAsync(u => u.Id == id);
-        }
-
         public async Task<bool> EmailExistsAsync(string email)
         {
             return await _context.Users.AnyAsync(u => u.Email == email);
         }
+
         public async Task<User?> GetByCodeAsync(int code)
         {
             return await _context.Users.FirstOrDefaultAsync(u => u.Code == code);
