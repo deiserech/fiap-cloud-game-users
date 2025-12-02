@@ -1,5 +1,4 @@
 using Azure.Messaging.ServiceBus;
-using FiapCloudGames.Users.Application.Interfaces.Services;
 using FiapCloudGames.Users.Domain.Events;
 using FiapCloudGames.Users.Infrastructure.ServiceBus;
 using Newtonsoft.Json;
@@ -9,15 +8,19 @@ namespace FiapCloudGames.Users.Api.BackgroundServices
     public class PurchaseCompletedConsumer : BackgroundService
     {
         private readonly IServiceBusClientWrapper _sb;
-        private readonly IPurchaseMessageHandler _handler;
+        private readonly IServiceScopeFactory _scopeFactory;
         private IServiceBusProcessor? _processor;
         private readonly IConfiguration _config;
         private readonly ILogger<PurchaseCompletedConsumer> _logger;
 
-        public PurchaseCompletedConsumer(IServiceBusClientWrapper sb, IPurchaseMessageHandler handler, IConfiguration config, ILogger<PurchaseCompletedConsumer> logger)
+        public PurchaseCompletedConsumer(
+            IServiceBusClientWrapper sb,
+            IServiceScopeFactory scopeFactory,
+            IConfiguration config,
+            ILogger<PurchaseCompletedConsumer> logger)
         {
             _sb = sb;
-            _handler = handler;
+            _scopeFactory = scopeFactory;
             _config = config;
             _logger = logger;
         }
@@ -30,22 +33,24 @@ namespace FiapCloudGames.Users.Api.BackgroundServices
             _processor.ProcessMessageAsync += async args =>
             {
                 var body = args.Message.Body.ToString();
-                var msg = Newtonsoft.Json.JsonConvert.DeserializeObject<PurchaseCompletedEvent>(body);
+                var msg = JsonConvert.DeserializeObject<PurchaseCompletedEvent>(body);
                 if (msg == null)
                 {
-                    _logger.LogWarning("PurchaseCompletedConsumer: mensagem inválida"); 
+                    _logger.LogWarning("PurchaseCompletedConsumer: mensagem inválida");
                     await args.CompleteMessageAsync(args.Message);
                     return;
                 }
 
-                if(!msg.Success)
+                if (!msg.Success)
                 {
                     _logger.LogInformation("PurchaseCompletedConsumer: compra não foi concluída com sucesso. PurchaseId: {PurchaseId}", msg.PurchaseId);
                     await args.CompleteMessageAsync(args.Message);
                     return;
                 }
 
-                await _handler.HandleAsync(msg, args.CancellationToken);
+                using var scope = _scopeFactory.CreateScope();
+                var handler = scope.ServiceProvider.GetRequiredService<IPurchaseMessageHandler>();
+                await handler.HandleAsync(msg, args.CancellationToken);
 
                 await args.CompleteMessageAsync(args.Message);
             };
@@ -60,6 +65,6 @@ namespace FiapCloudGames.Users.Api.BackgroundServices
             return Task.CompletedTask;
         }
 
-        
+
     }
 }

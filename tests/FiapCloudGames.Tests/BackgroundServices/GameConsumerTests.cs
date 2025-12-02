@@ -3,6 +3,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Azure.Messaging.ServiceBus;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Moq;
 using Shouldly;
@@ -20,6 +21,13 @@ namespace FiapCloudGames.Tests.BackgroundServices
             var mockClient = new Mock<IServiceBusClientWrapper>();
             var mockProcessor = new Mock<IServiceBusProcessor>();
             var mockHandler = new Mock<IGameMessageHandler>();
+            var mockScopeFactory = new Mock<IServiceScopeFactory>();
+            var mockScope = new Mock<IServiceScope>();
+            var mockProvider = new Mock<IServiceProvider>();
+
+            mockScopeFactory.Setup(f => f.CreateScope()).Returns(mockScope.Object);
+            mockScope.Setup(s => s.ServiceProvider).Returns(mockProvider.Object);
+            mockProvider.Setup(p => p.GetService(typeof(IGameMessageHandler))).Returns(mockHandler.Object);
             var mockLogger = new Mock<ILogger<GameConsumer>>();
 
             mockClient.Setup(c => c.CreateProcessorWrapper(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<ServiceBusProcessorOptions?>()))
@@ -29,7 +37,7 @@ namespace FiapCloudGames.Tests.BackgroundServices
 
             var config = new ConfigurationBuilder().Build();
 
-            var consumer = new GameConsumer(mockClient.Object, mockHandler.Object, config, mockLogger.Object);
+            var consumer = new GameConsumer(mockClient.Object, mockScopeFactory.Object, config, mockLogger.Object);
 
             var cts = new CancellationTokenSource();
             await consumer.StartAsync(cts.Token);

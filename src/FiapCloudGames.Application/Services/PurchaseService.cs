@@ -22,13 +22,19 @@ namespace FiapCloudGames.Users.Application.Services
 
         public async Task ProcessAsync(PurchaseCompletedEvent message, CancellationToken cancellationToken = default)
         {
+            if (!message.Success)
+            {
+                _logger.LogInformation("Purchase not completed successfully: {PurchaseId}", message.PurchaseId);
+                return;
+            }
+
             var game = await _gameService.GetByCodeAsync(message.GameCode)
                 ?? throw new Exception($"Game not found: {message.GameCode}");
 
             var user = await _userService.GetByCodeAsync(message.UserCode)
                 ?? throw new Exception($"User not found: {message.UserCode}");
 
-            var libraries = await _libraryService.GetLibraryByPurchaseGameAndUserAsync(message.PurchaseId, game.Id, user.Id);
+            var libraries = await _libraryService.GetLibraryByPurchaseGameAndUserAsync(message.PurchaseId!.Value, game.Id, user.Id);
             if (libraries is not null)
             {
                 _logger.LogWarning("library still exists: {PurchaseId}, {GameCode}, {UserCode}", message.PurchaseId, message.GameCode, message.UserCode);
@@ -38,8 +44,8 @@ namespace FiapCloudGames.Users.Application.Services
             var library = new Library(
                 user.Id,
                 game.Id,
-                message.PurchaseId,
-                message.ProcessedAt
+                message.PurchaseId!.Value,
+                message.ProcessedAt!.Value
             );
 
             await _libraryService.CreateAsync(library);

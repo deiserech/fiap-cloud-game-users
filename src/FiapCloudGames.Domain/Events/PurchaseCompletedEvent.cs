@@ -1,9 +1,9 @@
 namespace FiapCloudGames.Users.Domain.Events
 {
     public record PurchaseCompletedEvent(
-        Guid PurchaseId,
+        Guid? PurchaseId,
         int UserCode,
         int GameCode,
-        DateTimeOffset ProcessedAt,
+        DateTimeOffset? ProcessedAt,
         bool Success);
 }

@@ -7,6 +7,7 @@ using FiapCloudGames.Users.Domain.Interfaces.Repositories;
 using FiapCloudGames.Users.Infrastructure.Data;
 using FiapCloudGames.Users.Infrastructure.Repositories;
 using FiapCloudGames.Users.Infrastructure.ServiceBus;
+using FiapCloudGames.Users.Shared;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -46,6 +47,7 @@ builder.Services.AddScoped<IPurchaseMessageHandler, PurchaseMessageHandler>();
 
 builder.Services.AddHostedService<PurchaseCompletedConsumer>();
 builder.Services.AddHostedService<GameConsumer>();
+builder.Services.AddHostedService<ResourceLoggingService>();
 
 var app = builder.Build();
 

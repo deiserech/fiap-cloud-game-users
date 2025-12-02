@@ -4,6 +4,6 @@ namespace FiapCloudGames.Users.Shared.Tracing
 {
     public static class Tracing
     {
-        public static readonly ActivitySource ActivitySource = new("FiapCloudGames.Application");
+        public static readonly ActivitySource ActivitySource = new("FiapCloudGames.Users.Application");
     }
 }

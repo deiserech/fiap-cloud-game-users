@@ -1,5 +1,4 @@
 using Azure.Messaging.ServiceBus;
-using FiapCloudGames.Users.Application.Interfaces.Services;
 using FiapCloudGames.Users.Domain.Entities.Events;
 using FiapCloudGames.Users.Infrastructure.ServiceBus;
 using Newtonsoft.Json;
@@ -9,15 +8,15 @@ namespace FiapCloudGames.Users.Api.BackgroundServices
     public class GameConsumer : BackgroundService
     {
         private readonly IServiceBusClientWrapper _sb;
-        private readonly IGameMessageHandler _handler;
+        private readonly IServiceScopeFactory _scopeFactory;
         private IServiceBusProcessor? _processor;
         private readonly IConfiguration _config;
         private readonly ILogger<GameConsumer> _logger;
 
-        public GameConsumer(IServiceBusClientWrapper sb, IGameMessageHandler handler, IConfiguration config, ILogger<GameConsumer> logger)
+        public GameConsumer(IServiceBusClientWrapper sb, IServiceScopeFactory scopeFactory, IConfiguration config, ILogger<GameConsumer> logger)
         {
             _sb = sb;
-            _handler = handler;
+            _scopeFactory = scopeFactory;
             _config = config;
             _logger = logger;
         }
@@ -37,7 +36,9 @@ namespace FiapCloudGames.Users.Api.BackgroundServices
                     return;
                 }
 
-                await _handler.HandleAsync(msg, args.CancellationToken);
+                using var scope = _scopeFactory.CreateScope();
+                var handler = scope.ServiceProvider.GetRequiredService<IGameMessageHandler>();
+                await handler.HandleAsync(msg, args.CancellationToken);
 
                 await args.CompleteMessageAsync(args.Message);
             };
