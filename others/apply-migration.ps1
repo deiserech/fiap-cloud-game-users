@@ -95,9 +95,12 @@ if (-not $Migration) {
         exit 7
     }
 
-    $Migration = $latest
-    Write-Host "Migration selecionada: $Migration" -ForegroundColor DarkCyan
-}
+    # Algumas versões/outputs do `dotnet ef migrations list` acrescentam um sufixo
+    # de status como " (Pending)" ou " (Applied)". Removemos qualquer sufixo
+    # entre parênteses para garantir que o nome passado ao `dotnet ef` seja válido.
+    $cleanMigration = $latest -replace '\s*\(.*\)$',''
+    $Migration = $cleanMigration
+    Write-Host "Migration selecionada: $Migration" -ForegroundColor DarkCyan}
 else {
     Write-Host "Migration: $Migration" -ForegroundColor DarkCyan
 }
