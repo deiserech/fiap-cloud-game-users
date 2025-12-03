@@ -11,7 +11,7 @@ namespace FiapCloudGames.Users.Infrastructure.Data.Mapping
             builder.HasKey(g => g.Id);
             builder.Property(g => g.Id)
                 .ValueGeneratedOnAdd();
-                
+
             builder.Property(g => g.Code)
                 .IsRequired();
 
@@ -19,12 +19,20 @@ namespace FiapCloudGames.Users.Infrastructure.Data.Mapping
                 .IsRequired()
                 .HasMaxLength(200);
 
+            builder.Property(g => g.UpdatedAt)
+                .IsRequired();
+
+            builder.Property(g => g.IsActive)
+                .IsRequired();
+
+            builder.Property(g => g.RemovedAt);
+
             builder.HasMany(g => g.LibraryEntries)
                 .WithOne(l => l.Game)
                 .HasForeignKey(l => l.GameId);
 
-            builder.HasIndex(u => u.Code)
-                .IsUnique();                
+            builder.HasIndex(g => g.Code)
+                .IsUnique();
         }
     }
 }

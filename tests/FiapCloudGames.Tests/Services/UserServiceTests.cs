@@ -1,7 +1,8 @@
+using FiapCloudGames.Users.Application.DTOs;
+using FiapCloudGames.Users.Application.Interfaces.Publishers;
 using FiapCloudGames.Users.Application.Services;
 using FiapCloudGames.Users.Domain.Entities;
 using FiapCloudGames.Users.Domain.Interfaces.Repositories;
-using FiapCloudGames.Users.Application.DTOs;
 using Microsoft.Extensions.Logging;
 using Moq;
 using Shouldly;
@@ -12,9 +13,10 @@ namespace FiapCloudGames.Tests.Services;
 public class UserServiceTests
 {
     private readonly Mock<IUserRepository> _repo = new();
+    private readonly Mock<IUserEventPublisher> _publisher = new();
     private readonly Mock<ILogger<UserService>> _logger = new();
 
-    private UserService CreateService() => new(_repo.Object, _logger.Object);
+    private UserService CreateService() => new(_repo.Object, _logger.Object, _publisher.Object);
 
     [Fact]
     public async Task GetByIdAsync_DelegatesToRepository()

@@ -1,6 +1,8 @@
+using Azure.Messaging.ServiceBus;
 using FiapCloudGames.Users.Api.BackgroundServices;
 using FiapCloudGames.Users.Api.Extensions;
 using FiapCloudGames.Users.Api.Middlewares;
+using FiapCloudGames.Users.Application.Interfaces.Publishers;
 using FiapCloudGames.Users.Application.Interfaces.Services;
 using FiapCloudGames.Users.Application.Services;
 using FiapCloudGames.Users.Domain.Interfaces.Repositories;
@@ -34,16 +36,17 @@ builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 
-builder.Services.Configure<ServiceBusOptions>(opts =>
-{
-    opts.ConnectionString = configuration["ServiceBus:ConnectionString"]
-        ?? configuration["SERVICE_BUS_CONNECTION_STRING"]
-        ?? Environment.GetEnvironmentVariable("SERVICE_BUS_CONNECTION_STRING");
-});
+var sbConnectionString = configuration["ServiceBus:ConnectionString"] ?? "";
+builder.Services.Configure<ServiceBusOptions>(opts => { opts.ConnectionString = sbConnectionString; });
+
+builder.Services.AddSingleton(new ServiceBusClient(sbConnectionString));
 builder.Services.AddSingleton<IServiceBusClientWrapper, ServiceBusClientWrapper>();
+builder.Services.AddSingleton<IServiceBusPublisher, ServiceBusPublisher>();
 
 builder.Services.AddScoped<IGameMessageHandler, GameMessageHandler>();
 builder.Services.AddScoped<IPurchaseMessageHandler, PurchaseMessageHandler>();
+
+builder.Services.AddScoped<IUserEventPublisher, UserEventPublisher>();
 
 builder.Services.AddHostedService<PurchaseCompletedConsumer>();
 builder.Services.AddHostedService<GameConsumer>();

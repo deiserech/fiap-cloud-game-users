@@ -4,18 +4,21 @@ using FiapCloudGames.Users.Domain.Interfaces.Repositories;
 using FiapCloudGames.Users.Domain.Entities;
 using FiapCloudGames.Users.Application.Interfaces.Services;
 using FiapCloudGames.Users.Application.DTOs;
+using FiapCloudGames.Users.Application.Interfaces.Publishers;
 
 namespace FiapCloudGames.Users.Application.Services
 {
     public class UserService : IUserService
     {
         private readonly IUserRepository _repo;
-        private readonly ILogger<UserService> _logger;
+        private readonly IUserEventPublisher _userEventPublisher;
+                private readonly ILogger<UserService> _logger;
 
-        public UserService(IUserRepository repo, ILogger<UserService> logger)
+        public UserService(IUserRepository repo, ILogger<UserService> logger, IUserEventPublisher userEventPublisher)
         {
             _repo = repo;
             _logger = logger;
+            _userEventPublisher = userEventPublisher;
         }
 
         public async Task<User?> GetByIdAsync(Guid id)
@@ -48,6 +51,8 @@ namespace FiapCloudGames.Users.Application.Services
 
             var created = await _repo.CreateAsync(user);
             _logger.LogInformation("Usuário criado com sucesso: {Email}", registerDto.Email);
+
+            await _userEventPublisher.PublishUserEventAsync(created);   
             return created;
         }
         public async Task<User?> GetByCodeAsync(int code)

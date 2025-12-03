@@ -58,7 +58,7 @@ public class PurchaseServiceTests
 
         _gameService.Setup(g => g.GetByCodeAsync(evt.GameCode)).ReturnsAsync(game);
         _userService.Setup(u => u.GetByCodeAsync(evt.UserCode)).ReturnsAsync(user);
-        _libraryService.Setup(l => l.GetLibraryByPurchaseGameAndUserAsync(evt.PurchaseId, game.Id, user.Id)).ReturnsAsync(new Library(user.Id, game.Id, evt.PurchaseId, evt.ProcessedAt));
+        _libraryService.Setup(l => l.GetLibraryByPurchaseGameAndUserAsync(evt.PurchaseId!.Value, game.Id, user.Id)).ReturnsAsync(new Library(user.Id, game.Id, evt.PurchaseId!.Value, evt.ProcessedAt!.Value));
 
         var svc = CreateService();
 
@@ -79,7 +79,7 @@ public class PurchaseServiceTests
 
         _gameService.Setup(g => g.GetByCodeAsync(evt.GameCode)).ReturnsAsync(game);
         _userService.Setup(u => u.GetByCodeAsync(evt.UserCode)).ReturnsAsync(user);
-        _libraryService.Setup(l => l.GetLibraryByPurchaseGameAndUserAsync(evt.PurchaseId, game.Id, user.Id)).ReturnsAsync((Library?)null);
+        _libraryService.Setup(l => l.GetLibraryByPurchaseGameAndUserAsync(evt.PurchaseId!.Value, game.Id, user.Id)).ReturnsAsync((Library?)null);
         _libraryService.Setup(l => l.CreateAsync(It.IsAny<Library>())).ReturnsAsync((Library lib) => lib);
 
         var svc = CreateService();

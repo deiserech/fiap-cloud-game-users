@@ -23,22 +23,22 @@ namespace FiapCloudGames.Users.Infrastructure.Data.Mapping
                 .IsRequired()
                 .HasMaxLength(255);
 
+            builder.Property(u => u.Role)
+                .IsRequired();
+
             builder.Property(u => u.PasswordHash)
                 .IsRequired()
                 .HasMaxLength(128);
 
-            builder.Property(u => u.Role)
-                .IsRequired();
-
-            builder.HasIndex(u => u.Email)
-                .IsUnique();
+            builder.HasMany(u => u.LibraryGames)
+                .WithOne(l => l.User)
+                .HasForeignKey(l => l.UserId);
 
             builder.HasIndex(u => u.Code)
                 .IsUnique();
 
-            builder.HasMany(u => u.LibraryGames)
-                .WithOne(l => l.User)
-                .HasForeignKey(l => l.UserId);
+            builder.HasIndex(u => u.Email)
+                .IsUnique();
         }
     }
 }
