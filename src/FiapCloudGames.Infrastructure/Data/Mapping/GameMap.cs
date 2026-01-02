@@ -23,6 +23,7 @@ namespace FiapCloudGames.Users.Infrastructure.Data.Mapping
                 .IsRequired();
 
             builder.Property(g => g.Category)
+                .HasConversion<string>()
                 .IsRequired();
 
             builder.Property(g => g.IsActive)
