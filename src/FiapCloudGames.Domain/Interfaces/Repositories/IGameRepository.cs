@@ -1,4 +1,5 @@
 using FiapCloudGames.Users.Domain.Entities;
+using FiapCloudGames.Users.Domain.Enums;
 
 namespace FiapCloudGames.Users.Domain.Interfaces.Repositories
 {
@@ -10,5 +11,6 @@ namespace FiapCloudGames.Users.Domain.Interfaces.Repositories
         Task RemoveAsync(Guid id);
         Task<bool> ExistsAsync(Guid id);
         Task<Game?> GetByCodeAsync(int code);
+        Task<IEnumerable<Game>> GetByCategoryAsync(GameCategory category, int limit);
     }
 }

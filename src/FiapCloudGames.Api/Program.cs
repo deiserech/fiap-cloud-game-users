@@ -5,6 +5,7 @@ using FiapCloudGames.Users.Api.Middlewares;
 using FiapCloudGames.Users.Application.Interfaces.Publishers;
 using FiapCloudGames.Users.Application.Interfaces.Services;
 using FiapCloudGames.Users.Application.Services;
+using FiapCloudGames.Users.Infrastructure.Services;
 using FiapCloudGames.Users.Domain.Interfaces.Repositories;
 using FiapCloudGames.Users.Infrastructure.Data;
 using FiapCloudGames.Users.Infrastructure.Repositories;
@@ -51,6 +52,7 @@ var esSettings = new ConnectionSettings(new Uri(esUri));
 esSettings.DefaultIndex("purchases-history");
 builder.Services.AddSingleton<IElasticClient>(new ElasticClient(esSettings));
 builder.Services.AddScoped<IPurchaseHistoryService, PurchaseHistoryService>();
+builder.Services.AddScoped<ISuggestionService, SuggestionService>();
 
 builder.Services.AddScoped<IGameMessageHandler, GameMessageHandler>();
 builder.Services.AddScoped<IPurchaseMessageHandler, PurchaseMessageHandler>();

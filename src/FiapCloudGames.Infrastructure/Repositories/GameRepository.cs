@@ -1,4 +1,5 @@
 using FiapCloudGames.Users.Domain.Entities;
+using FiapCloudGames.Users.Domain.Enums;
 using FiapCloudGames.Users.Domain.Interfaces.Repositories;
 using FiapCloudGames.Users.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
@@ -59,6 +60,15 @@ namespace FiapCloudGames.Users.Infrastructure.Repositories
         public async Task<Game?> GetByCodeAsync(int code)
         {
             return await _context.Games.FirstOrDefaultAsync(g => g.Code == code);
+        }
+
+        public async Task<IEnumerable<Game>> GetByCategoryAsync(GameCategory category, int limit)
+        {
+            return await _context.Games
+                .Where(g => g.Category == category && g.IsActive)
+                .OrderByDescending(g => g.UpdatedAt)
+                .Take(limit)
+                .ToListAsync();
         }
 
     }
