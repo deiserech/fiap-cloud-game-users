@@ -10,13 +10,15 @@ namespace FiapCloudGames.Users.Application.Services
         private readonly ILibraryService _libraryService;
         private readonly IGameService _gameService;
         private readonly IUserService _userService;
+        private readonly IPurchaseHistoryService _purchaseHistoryService;
         private readonly ILogger<PurchaseService> _logger;
 
-        public PurchaseService(ILibraryService libraryService, IGameService gameService, IUserService userService, ILogger<PurchaseService> logger)
+        public PurchaseService(ILibraryService libraryService, IGameService gameService, IUserService userService, IPurchaseHistoryService purchaseHistoryService, ILogger<PurchaseService> logger)
         {
             _libraryService = libraryService;
             _gameService = gameService;
             _userService = userService;
+            _purchaseHistoryService = purchaseHistoryService;
             _logger = logger;
         }
 
@@ -50,6 +52,21 @@ namespace FiapCloudGames.Users.Application.Services
 
             await _libraryService.CreateAsync(library);
             _logger.LogInformation("Library created for: {PurchaseId}, {GameCode}, {UserCode}", message.PurchaseId, message.GameCode, message.UserCode);
+
+            var enriched = new DTOs.EnrichedPurchaseDto
+            {
+                PurchaseId = message.PurchaseId ?? Guid.Empty,
+                UserCode = message.UserCode,
+                UserId = user.Id,
+                GameCode = message.GameCode,
+                GameId = game.Id,
+                ProcessedAt = message.ProcessedAt ?? DateTimeOffset.UtcNow,
+                Success = message.Success,
+                Amount = null,
+                Category = game.Category
+            };
+
+            await _purchaseHistoryService.IndexPurchaseAsync(enriched, cancellationToken);
         }
     }
 }

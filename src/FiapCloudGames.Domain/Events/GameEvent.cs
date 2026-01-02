@@ -8,5 +8,5 @@ namespace FiapCloudGames.Users.Domain.Entities.Events
         string Title,
         DateTimeOffset UpdatedAt,
         DateTimeOffset? RemovedAt,
-        GameCategory Category);
+        GameCategory Category = GameCategory.Unknown);
 }

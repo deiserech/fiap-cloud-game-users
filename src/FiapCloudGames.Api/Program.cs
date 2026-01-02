@@ -9,6 +9,9 @@ using FiapCloudGames.Users.Domain.Interfaces.Repositories;
 using FiapCloudGames.Users.Infrastructure.Data;
 using FiapCloudGames.Users.Infrastructure.Repositories;
 using FiapCloudGames.Users.Infrastructure.ServiceBus;
+using FiapCloudGames.Users.Infrastructure.Publishers;
+using FiapCloudGames.Users.Infrastructure.Elasticsearch;
+using Nest;
 using FiapCloudGames.Users.Shared;
 using Microsoft.EntityFrameworkCore;
 
@@ -42,6 +45,12 @@ builder.Services.Configure<ServiceBusOptions>(opts => { opts.ConnectionString = 
 builder.Services.AddSingleton(new ServiceBusClient(sbConnectionString));
 builder.Services.AddSingleton<IServiceBusClientWrapper, ServiceBusClientWrapper>();
 builder.Services.AddSingleton<IServiceBusPublisher, ServiceBusPublisher>();
+
+var esUri = configuration["Elasticsearch:Uri"] ?? "http://localhost:9200";
+var esSettings = new ConnectionSettings(new Uri(esUri));
+esSettings.DefaultIndex("purchases-history");
+builder.Services.AddSingleton<IElasticClient>(new ElasticClient(esSettings));
+builder.Services.AddScoped<IPurchaseHistoryService, PurchaseHistoryService>();
 
 builder.Services.AddScoped<IGameMessageHandler, GameMessageHandler>();
 builder.Services.AddScoped<IPurchaseMessageHandler, PurchaseMessageHandler>();

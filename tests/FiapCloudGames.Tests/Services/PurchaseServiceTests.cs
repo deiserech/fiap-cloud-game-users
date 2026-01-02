@@ -16,8 +16,9 @@ public class PurchaseServiceTests
     private readonly Mock<IGameService> _gameService = new();
     private readonly Mock<IUserService> _userService = new();
     private readonly Mock<ILogger<PurchaseService>> _logger = new();
+    private readonly Mock<IPurchaseHistoryService> _purchaseHistoryService = new();
 
-    private PurchaseService CreateService() => new(_libraryService.Object, _gameService.Object, _userService.Object, _logger.Object);
+    private PurchaseService CreateService() => new(_libraryService.Object, _gameService.Object, _userService.Object, _purchaseHistoryService.Object, _logger.Object);
 
     [Fact]
     public async Task ProcessAsync_Throws_WhenGameNotFound()
