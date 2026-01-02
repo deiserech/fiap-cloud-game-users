@@ -22,6 +22,9 @@ namespace FiapCloudGames.Users.Infrastructure.Data.Mapping
             builder.Property(g => g.UpdatedAt)
                 .IsRequired();
 
+            builder.Property(g => g.Category)
+                .IsRequired();
+
             builder.Property(g => g.IsActive)
                 .IsRequired();
 

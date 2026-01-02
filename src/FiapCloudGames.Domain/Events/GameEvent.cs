@@ -1,3 +1,5 @@
+using FiapCloudGames.Users.Domain.Enums;
+
 namespace FiapCloudGames.Users.Domain.Entities.Events
 {
     public record GameEvent(
@@ -5,5 +7,6 @@ namespace FiapCloudGames.Users.Domain.Entities.Events
         int Code,
         string Title,
         DateTimeOffset UpdatedAt,
-        DateTimeOffset? RemovedAt);
+        DateTimeOffset? RemovedAt,
+        GameCategory Category);
 }
