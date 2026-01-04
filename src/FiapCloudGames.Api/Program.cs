@@ -64,9 +64,11 @@ builder.Services.AddScoped<IGameMessageHandler, GameMessageHandler>();
 builder.Services.AddScoped<IPurchaseMessageHandler, PurchaseMessageHandler>();
 
 builder.Services.AddScoped<IUserEventPublisher, UserEventPublisher>();
+builder.Services.AddScoped<IPurchaseHistoryEventPublisher, PurchaseHistoryEventPublisher>();
 
 builder.Services.AddHostedService<PurchaseCompletedConsumer>();
 builder.Services.AddHostedService<GameConsumer>();
+builder.Services.AddHostedService<PurchaseHistoryConsumer>();
 builder.Services.AddHostedService<ResourceLoggingService>();
 
 var app = builder.Build();

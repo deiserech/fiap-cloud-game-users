@@ -52,7 +52,7 @@ namespace FiapCloudGames.Users.Infrastructure.Elasticsearch
                 _logger.LogError(ex, "Exception indexing purchase history");
             }
         }
-        private async Task EnsureIndexExistsAsync(CancellationToken cancellationToken = default)
+        protected virtual async Task EnsureIndexExistsAsync(CancellationToken cancellationToken = default)
         {
             var existsResponse = await _client.Indices.ExistsAsync(IndexName, ct: cancellationToken);
             if (!existsResponse.Exists)

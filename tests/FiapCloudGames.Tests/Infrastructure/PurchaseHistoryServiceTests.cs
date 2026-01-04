@@ -24,7 +24,7 @@ namespace FiapCloudGames.Tests.Infrastructure
                 .Setup(c => c.IndexAsync(It.IsAny<PurchaseHistoryDocument>(), It.IsAny<Func<IndexDescriptor<PurchaseHistoryDocument>, IIndexRequest<PurchaseHistoryDocument>>>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(Mock.Of<IndexResponse>());
 
-            var service = new PurchaseHistoryService(mockClient.Object, mockLogger.Object);
+            var service = new TestablePurchaseHistoryService(mockClient.Object, mockLogger.Object);
 
             var dto = new EnrichedPurchaseDto
             {
@@ -60,7 +60,7 @@ namespace FiapCloudGames.Tests.Infrastructure
                 .Setup(c => c.IndexAsync(It.IsAny<PurchaseHistoryDocument>(), It.IsAny<Func<IndexDescriptor<PurchaseHistoryDocument>, IIndexRequest<PurchaseHistoryDocument>>>(), It.IsAny<CancellationToken>()))
                 .ThrowsAsync(new Exception("index failed"));
 
-            var service = new PurchaseHistoryService(mockClient.Object, mockLogger.Object);
+            var service = new TestablePurchaseHistoryService(mockClient.Object, mockLogger.Object);
 
             var dto = new EnrichedPurchaseDto
             {
@@ -80,6 +80,19 @@ namespace FiapCloudGames.Tests.Infrastructure
 
             // Assert
             mockClient.Verify(c => c.IndexAsync(It.IsAny<PurchaseHistoryDocument>(), It.IsAny<Func<IndexDescriptor<PurchaseHistoryDocument>, IIndexRequest<PurchaseHistoryDocument>>>(), It.IsAny<CancellationToken>()), Times.Once);
+        }
+
+        private class TestablePurchaseHistoryService : PurchaseHistoryService
+        {
+            public TestablePurchaseHistoryService(IElasticClient client, ILogger<PurchaseHistoryService> logger)
+                : base(client, logger)
+            {
+            }
+
+            protected override Task EnsureIndexExistsAsync(CancellationToken cancellationToken = default)
+            {
+                return Task.CompletedTask;
+            }
         }
     }
 }

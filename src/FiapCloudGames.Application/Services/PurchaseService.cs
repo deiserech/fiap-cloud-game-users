@@ -1,3 +1,5 @@
+using FiapCloudGames.Users.Application.DTOs;
+using FiapCloudGames.Users.Application.Interfaces.Publishers;
 using FiapCloudGames.Users.Application.Interfaces.Services;
 using FiapCloudGames.Users.Domain.Entities;
 using FiapCloudGames.Users.Domain.Events;
@@ -10,15 +12,15 @@ namespace FiapCloudGames.Users.Application.Services
         private readonly ILibraryService _libraryService;
         private readonly IGameService _gameService;
         private readonly IUserService _userService;
-        private readonly IPurchaseHistoryService _purchaseHistoryService;
+        private readonly IPurchaseHistoryEventPublisher _purchaseHistoryEventPublisher;
         private readonly ILogger<PurchaseService> _logger;
 
-        public PurchaseService(ILibraryService libraryService, IGameService gameService, IUserService userService, IPurchaseHistoryService purchaseHistoryService, ILogger<PurchaseService> logger)
+        public PurchaseService(ILibraryService libraryService, IGameService gameService, IUserService userService, IPurchaseHistoryEventPublisher purchaseHistoryEventPublisher, ILogger<PurchaseService> logger)
         {
             _libraryService = libraryService;
             _gameService = gameService;
             _userService = userService;
-            _purchaseHistoryService = purchaseHistoryService;
+            _purchaseHistoryEventPublisher = purchaseHistoryEventPublisher;
             _logger = logger;
         }
 
@@ -53,7 +55,7 @@ namespace FiapCloudGames.Users.Application.Services
             await _libraryService.CreateAsync(library);
             _logger.LogInformation("Library created for: {PurchaseId}, {GameCode}, {UserCode}", message.PurchaseId, message.GameCode, message.UserCode);
 
-            var enriched = new DTOs.EnrichedPurchaseDto
+            var enriched = new EnrichedPurchaseDto
             {
                 PurchaseId = message.PurchaseId ?? Guid.Empty,
                 UserCode = message.UserCode,
@@ -66,7 +68,7 @@ namespace FiapCloudGames.Users.Application.Services
                 Category = game.Category
             };
 
-            await _purchaseHistoryService.IndexPurchaseAsync(enriched, cancellationToken);
+            await _purchaseHistoryEventPublisher.PublishPurchaseHistoryAsync(enriched, cancellationToken);
         }
     }
 }
