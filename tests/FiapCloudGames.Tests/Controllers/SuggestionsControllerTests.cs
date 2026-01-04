@@ -17,7 +17,7 @@ public class SuggestionsControllerTests
 {
     private readonly Mock<ISuggestionService> _suggestionService = new();
 
-    private static SuggestionsController CreateController(Mock<ISuggestionService> suggestionService)
+    private SuggestionsController CreateController(Mock<ISuggestionService> suggestionService)
     {
         var httpContext = new DefaultHttpContext();
         httpContext.RequestServices = new ServiceCollection().BuildServiceProvider();
@@ -38,7 +38,7 @@ public class SuggestionsControllerTests
     {
         // Arrange
         _suggestionService
-            .Setup(s => s.GetSuggestionsAsync(It.IsAny<int>(), It.IsAny<int>()))
+            .Setup(s => s.GetSuggestionsAsync(It.IsAny<int>()))
             .Returns(Task.FromResult<IEnumerable<GameSuggestionDto>>(null!));
 
         var controller = CreateController(_suggestionService);
@@ -55,7 +55,7 @@ public class SuggestionsControllerTests
     {
         // Arrange
         _suggestionService
-            .Setup(s => s.GetSuggestionsAsync(It.IsAny<int>(), It.IsAny<int>()))
+            .Setup(s => s.GetSuggestionsAsync(It.IsAny<int>()))
             .ReturnsAsync(Enumerable.Empty<GameSuggestionDto>());
 
         var controller = CreateController(_suggestionService);
@@ -83,7 +83,7 @@ public class SuggestionsControllerTests
         };
 
         _suggestionService
-            .Setup(s => s.GetSuggestionsAsync(It.IsAny<int>(), It.IsAny<int>()))
+            .Setup(s => s.GetSuggestionsAsync(It.IsAny<int>()))
             .ReturnsAsync(suggestions);
 
         var controller = CreateController(_suggestionService);

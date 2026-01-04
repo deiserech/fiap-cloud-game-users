@@ -1,8 +1,10 @@
 using FiapCloudGames.Users.Application.DTOs;
 using FiapCloudGames.Users.Application.Interfaces.Services;
+using FiapCloudGames.Users.Domain.Entities;
 using FiapCloudGames.Users.Domain.Enums;
 using FiapCloudGames.Users.Domain.Interfaces.Repositories;
 using FiapCloudGames.Users.Infrastructure.Elasticsearch;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Nest;
 
@@ -10,70 +12,50 @@ namespace FiapCloudGames.Users.Infrastructure.Services
 {
     public class SuggestionService : ISuggestionService
     {
+        private const string PurchaseHistoryIndex = "purchases-history";
+        private const string CategoryAggregationName = "by_category";
+        private const string PopularGamesAggregationName = "by_game";
+
         private readonly IElasticClient _client;
         private readonly IGameRepository _gameRepository;
         private readonly ILibraryService _libraryService;
         private readonly ILogger<SuggestionService> _logger;
+        private readonly int _maxSuggestions;
 
-        public SuggestionService(IElasticClient client, IGameRepository gameRepository, ILibraryService libraryService, ILogger<SuggestionService> logger)
+        public SuggestionService(IElasticClient client, IGameRepository gameRepository, ILibraryService libraryService, ILogger<SuggestionService> logger, IConfiguration configuration)
         {
             _client = client;
             _gameRepository = gameRepository;
             _libraryService = libraryService;
             _logger = logger;
+            _maxSuggestions = int.TryParse(configuration["SUGGESTIONS_MAX_GAMES"], out var parsed) && parsed > 0
+                ? parsed
+                : 3;
         }
 
-        public async Task<IEnumerable<GameSuggestionDto>> GetSuggestionsAsync(int userCode, int max = 3)
+        public async Task<IEnumerable<GameSuggestionDto>> GetSuggestionsAsync(int userCode)
         {
             try
             {
-                var resp = await _client.SearchAsync<PurchaseHistoryDocument>(s => s
-                    .Index("purchases-history")
-                    .Size(0)
-                    .Query(q => q.Bool(b => b.Must(
-                        mu => mu.Term(t => t.Field(f => f.UserCode).Value(userCode)),
-                        mu => mu.Term(t => t.Field(f => f.Success).Value(true))
-                    )))
-                    .Aggregations(a => a.Terms("by_category", t => t.Field(f => f.Category).Size(10).Order(o => o.Descending("_count"))))
-                );
-
-                if (!resp.IsValid)
+                var categoryBuckets = await GetUserCategoryBucketsAsync(userCode);
+                if (categoryBuckets == null || categoryBuckets.Count == 0)
                 {
-                    _logger.LogWarning("Elasticsearch suggestion query invalid: {Reason}", resp.OriginalException?.Message ?? resp.DebugInformation);
-                    return [];
-                }
-
-                var terms = resp.Aggregations.Terms("by_category")?.Buckets;
-                if (terms == null || terms.Count == 0)
-                {
-
                     _logger.LogInformation("Elasticsearch suggestion empty.");
                     return [];
                 }
 
-                var library = await _libraryService.GetUserLibraryAsync(userCode);
-                var ownedIds = new HashSet<Guid>(library.Select(l => l.GameId));
-
+                var ownedIds = await GetOwnedGameIdsAsync(userCode);
                 var suggestions = new List<GameSuggestionDto>();
-                foreach (var bucket in terms)
+
+                await AddCategorySuggestionsAsync(categoryBuckets, ownedIds, suggestions, _maxSuggestions);
+
+                if (suggestions.Count < _maxSuggestions)
                 {
-                    if (suggestions.Count >= max) break;
-                    if (!int.TryParse(bucket.Key, out int catInt)) continue;
-                    var category = (GameCategory)catInt;
-                    var games = await _gameRepository.GetByCategoryAsync(category, max - suggestions.Count);
-                    foreach (var g in games)
-                    {
-                        if (ownedIds.Contains(g.Id)) continue;
-                        suggestions.Add(new GameSuggestionDto
-                        {
-                            GameId = g.Id,
-                            GameCode = g.Code,
-                            Title = g.Title,
-                            Category = g.Category
-                        });
-                        if (suggestions.Count >= max) break;
-                    }
+                    var blockedIds = new HashSet<Guid>(ownedIds);
+                    blockedIds.UnionWith(suggestions.Select(s => s.GameId));
+                    await AddPopularSuggestionsAsync(blockedIds, suggestions, _maxSuggestions);
                 }
+
                 _logger.LogDebug("Suggestions built. Total: {Count}, Suggestions: {@Suggestions}", suggestions.Count, suggestions);
                 return suggestions;
             }
@@ -83,5 +65,103 @@ namespace FiapCloudGames.Users.Infrastructure.Services
                 return [];
             }
         }
+
+        private async Task<IReadOnlyCollection<KeyedBucket<string>>?> GetUserCategoryBucketsAsync(int userCode)
+        {
+            var resp = await _client.SearchAsync<PurchaseHistoryDocument>(s => s
+                .Index(PurchaseHistoryIndex)
+                .Size(0)
+                .Query(q => q.Bool(b => b.Must(
+                    mu => mu.Term(t => t.Field(f => f.UserCode).Value(userCode)),
+                    mu => mu.Term(t => t.Field(f => f.Success).Value(true))
+                )))
+                .Aggregations(a => a.Terms(CategoryAggregationName, t => t.Field(f => f.Category).Size(10).Order(o => o.Descending("_count"))))
+            );
+
+            if (!resp.IsValid)
+            {
+                _logger.LogWarning("Elasticsearch suggestion query invalid: {Reason}", resp.OriginalException?.Message ?? resp.DebugInformation);
+                return null;
+            }
+
+            return resp.Aggregations.Terms(CategoryAggregationName)?.Buckets;
+        }
+
+        private async Task<HashSet<Guid>> GetOwnedGameIdsAsync(int userCode)
+        {
+            var library = await _libraryService.GetUserLibraryAsync(userCode);
+            return [.. library.Select(l => l.GameId)];
+        }
+
+        private async Task AddCategorySuggestionsAsync(
+            IReadOnlyCollection<KeyedBucket<string>> buckets,
+            HashSet<Guid> ownedIds,
+            List<GameSuggestionDto> suggestions,
+            int max)
+        {
+            foreach (var bucket in buckets)
+            {
+                if (suggestions.Count >= max) break;
+                if (!int.TryParse(bucket.Key, out var catInt)) continue;
+
+                var category = (GameCategory)catInt;
+                var remaining = max - suggestions.Count;
+                var games = await _gameRepository.GetByCategoryAsync(category, remaining);
+
+                foreach (var game in games)
+                {
+                    if (ownedIds.Contains(game.Id)) continue;
+
+                    suggestions.Add(MapToSuggestion(game));
+                    if (suggestions.Count >= max) break;
+                }
+            }
+        }
+
+        private async Task AddPopularSuggestionsAsync(
+            HashSet<Guid> blockedGameIds,
+            List<GameSuggestionDto> suggestions,
+            int max)
+        {
+            var popularResp = await _client.SearchAsync<PurchaseHistoryDocument>(s => s
+                .Index(PurchaseHistoryIndex)
+                .Size(0)
+                .Query(q => q.Term(t => t.Field(f => f.Success).Value(true)))
+                .Aggregations(a => a.Terms(PopularGamesAggregationName, t => t.Field(f => f.GameId).Size(50).Order(o => o.Descending("_count"))))
+            );
+
+            if (!popularResp.IsValid)
+            {
+                _logger.LogWarning("Elasticsearch popular games query invalid: {Reason}", popularResp.OriginalException?.Message ?? popularResp.DebugInformation);
+                return;
+            }
+
+            var gameBuckets = popularResp.Aggregations.Terms(PopularGamesAggregationName)?.Buckets;
+            if (gameBuckets == null)
+            {
+                return;
+            }
+
+            foreach (var bucket in gameBuckets)
+            {
+                if (suggestions.Count >= max) break;
+                if (!Guid.TryParse(bucket.Key, out var gameId)) continue;
+                if (blockedGameIds.Contains(gameId)) continue;
+
+                var game = await _gameRepository.GetByIdAsync(gameId);
+                if (game == null) continue;
+
+                suggestions.Add(MapToSuggestion(game));
+                blockedGameIds.Add(game.Id);
+            }
+        }
+
+        private static GameSuggestionDto MapToSuggestion(Game game) => new()
+        {
+            GameId = game.Id,
+            GameCode = game.Code,
+            Title = game.Title,
+            Category = game.Category
+        };
     }
 }

@@ -10,6 +10,7 @@ using FiapCloudGames.Users.Domain.Enums;
 using FiapCloudGames.Users.Domain.Interfaces.Repositories;
 using FiapCloudGames.Users.Infrastructure.Elasticsearch;
 using FiapCloudGames.Users.Infrastructure.Services;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Moq;
 using Nest;
@@ -25,7 +26,11 @@ public class SuggestionServiceTests
     private readonly Mock<ILibraryService> _libraryService = new();
     private readonly Mock<ILogger<SuggestionService>> _logger = new();
 
-    private SuggestionService CreateService() => new(_client.Object, _gameRepository.Object, _libraryService.Object, _logger.Object);
+    private SuggestionService CreateService()
+    {
+        var configuration = new ConfigurationBuilder().Build();
+        return new SuggestionService(_client.Object, _gameRepository.Object, _libraryService.Object, _logger.Object, configuration);
+    }
 
     [Fact]
     public async Task GetSuggestionsAsync_ReturnsEmpty_WhenElasticSearchInvalid()
@@ -42,7 +47,7 @@ public class SuggestionServiceTests
         var svc = CreateService();
 
         // Act
-        var result = await svc.GetSuggestionsAsync(10, 3);
+        var result = await svc.GetSuggestionsAsync(10);
 
         // Assert
         result.ShouldNotBeNull();
@@ -66,7 +71,7 @@ public class SuggestionServiceTests
         var svc = CreateService();
 
         // Act
-        var result = await svc.GetSuggestionsAsync(10, 3);
+        var result = await svc.GetSuggestionsAsync(10);
 
         // Assert
         result.ShouldNotBeNull();
@@ -80,14 +85,14 @@ public class SuggestionServiceTests
         var searchResponse = new Mock<ISearchResponse<PurchaseHistoryDocument>>();
         searchResponse.SetupGet(r => r.IsValid).Returns(true);
 
-        var bucket = new KeyedBucket<object>(new Dictionary<string, IAggregate>())
+        var bucket = new KeyedBucket<string>(new Dictionary<string, IAggregate>())
         {
             Key = ((int)GameCategory.Action).ToString()
         };
 
-        var termsAggregate = new TermsAggregate<object>
+        var termsAggregate = new TermsAggregate<string>
         {
-            Buckets = new List<KeyedBucket<object>> { bucket }
+            Buckets = new List<KeyedBucket<string>> { bucket }
         };
 
         var dict = new Dictionary<string, IAggregate>
@@ -119,7 +124,7 @@ public class SuggestionServiceTests
         var svc = CreateService();
 
         // Act
-        var result = (await svc.GetSuggestionsAsync(10, 2)).ToList();
+        var result = (await svc.GetSuggestionsAsync(10)).ToList();
 
         // Assert
         result.ShouldNotBeNull();

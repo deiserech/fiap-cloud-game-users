@@ -1,6 +1,7 @@
 using FiapCloudGames.Users.Application.Interfaces.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 
 namespace FiapCloudGames.Users.Api.Controllers
 {
@@ -21,7 +22,7 @@ namespace FiapCloudGames.Users.Api.Controllers
         [Authorize(Roles = "Admin, User")]
         public async Task<IActionResult> GetSuggestions(int userCode)
         {
-            var suggestions = await _suggestionService.GetSuggestionsAsync(userCode, 3);
+            var suggestions = await _suggestionService.GetSuggestionsAsync(userCode);
             if (suggestions == null || !suggestions.Any())
             {
                 return NotFound();
