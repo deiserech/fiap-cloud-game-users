@@ -25,6 +25,8 @@ namespace FiapCloudGames.Users.Infrastructure.Elasticsearch
         {
             try
             {
+                await EnsureIndexExistsAsync(cancellationToken);
+
                 var doc = new PurchaseHistoryDocument
                 {
                     PurchaseId = purchase.PurchaseId,
@@ -43,11 +45,45 @@ namespace FiapCloudGames.Users.Infrastructure.Elasticsearch
                 {
                     _logger.LogWarning("Failed to index purchase history: {Reason}", resp.OriginalException?.Message ?? resp.DebugInformation);
                 }
+                _logger.LogDebug("Succefully indexed purchase history {@Purchase}", doc);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Exception indexing purchase history");
             }
         }
+        private async Task EnsureIndexExistsAsync(CancellationToken cancellationToken = default)
+        {
+            var existsResponse = await _client.Indices.ExistsAsync(IndexName, ct: cancellationToken);
+            if (!existsResponse.Exists)
+            {
+                var createResponse = await _client.Indices.CreateAsync(IndexName, c => c
+                    .Map<PurchaseHistoryDocument>(m => m
+                        .AutoMap()
+                        .Properties(ps => ps
+                            .Keyword(k => k.Name(n => n.PurchaseId))
+                            .Keyword(k => k.Name(n => n.UserId))
+                            .Keyword(k => k.Name(n => n.GameId))
+                            .Keyword(k => k.Name(n => n.Category))
+                            .Number(nu => nu.Name(n => n.UserCode).Type(NumberType.Integer))
+                            .Number(nu => nu.Name(n => n.GameCode).Type(NumberType.Integer))
+                            .Number(nu => nu.Name(n => n.Amount).Type(NumberType.Double))
+                            .Date(d => d.Name(n => n.ProcessedAt))
+                            .Boolean(b => b.Name(n => n.Success))
+                        )
+                    ), ct: cancellationToken
+                );
+
+                if (!createResponse.IsValid)
+                {
+                    _logger.LogError("Failed to create purchases-history index: {Reason}", createResponse.OriginalException?.Message ?? createResponse.DebugInformation);
+                }
+                else
+                {
+                    _logger.LogInformation("Created purchases-history index with explicit mapping.");
+                }
+            }
+        }
+
     }
 }
