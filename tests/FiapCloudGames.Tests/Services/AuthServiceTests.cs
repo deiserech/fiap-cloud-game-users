@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using FiapCloudGames.Users.Application.DTOs;
+using FiapCloudGames.Users.Application.Interfaces.Publishers;
 using FiapCloudGames.Users.Application.Services;
 using FiapCloudGames.Users.Domain.Entities;
 using FiapCloudGames.Users.Domain.Enums;
@@ -16,6 +17,8 @@ public class AuthServiceTests
 {
     private Mock<IUserRepository> _userRepo = new();
     private Mock<ILogger<AuthService>> _logger = new();
+    private Mock<IUserEventPublisher> _userEventPublisher = new();
+
 
     private IConfiguration BuildConfiguration(string secretKey)
     {
@@ -34,7 +37,7 @@ public class AuthServiceTests
     public async Task Login_ReturnsNull_WhenUserNotFound()
     {
         _userRepo.Setup(r => r.GetByEmailAsync(It.IsAny<string>())).ReturnsAsync((User?)null);
-        var svc = new AuthService(_userRepo.Object, BuildConfiguration(new string('a', 32)), _logger.Object);
+        var svc = new AuthService(_userRepo.Object, BuildConfiguration(new string('a', 32)), _logger.Object, _userEventPublisher.Object);
 
         var result = await svc.Login(new LoginDto { Email = "no@u.com", Password = "x" });
 
@@ -48,7 +51,7 @@ public class AuthServiceTests
         // PasswordHash is empty -> VerifyPassword returns false
         _userRepo.Setup(r => r.GetByEmailAsync(user.Email)).ReturnsAsync(user);
 
-        var svc = new AuthService(_userRepo.Object, BuildConfiguration(new string('a', 32)), _logger.Object);
+        var svc = new AuthService(_userRepo.Object, BuildConfiguration(new string('a', 32)), _logger.Object, _userEventPublisher.Object);
 
         var result = await svc.Login(new LoginDto { Email = user.Email, Password = "wrong" });
 
@@ -63,7 +66,7 @@ public class AuthServiceTests
 
         _userRepo.Setup(r => r.GetByEmailAsync(user.Email)).ReturnsAsync(user);
 
-        var svc = new AuthService(_userRepo.Object, BuildConfiguration(new string('b', 64)), _logger.Object);
+        var svc = new AuthService(_userRepo.Object, BuildConfiguration(new string('b', 64)), _logger.Object, _userEventPublisher.Object);
 
         var result = await svc.Login(new LoginDto { Email = user.Email, Password = "P@ssword1" });
 
@@ -79,7 +82,7 @@ public class AuthServiceTests
         user.SetPassword("P@ssword1");
         _userRepo.Setup(r => r.GetByEmailAsync(user.Email)).ReturnsAsync(user);
 
-        var svc = new AuthService(_userRepo.Object, BuildConfiguration("short"), _logger.Object);
+        var svc = new AuthService(_userRepo.Object, BuildConfiguration("short"), _logger.Object, _userEventPublisher.Object);
 
         await Should.ThrowAsync<InvalidOperationException>(async () => await svc.Login(new LoginDto { Email = user.Email, Password = "P@ssword1" }));
     }
@@ -89,7 +92,7 @@ public class AuthServiceTests
     {
         _userRepo.Setup(r => r.EmailExistsAsync(It.IsAny<string>())).ReturnsAsync(true);
 
-        var svc = new AuthService(_userRepo.Object, BuildConfiguration(new string('c', 32)), _logger.Object);
+        var svc = new AuthService(_userRepo.Object, BuildConfiguration(new string('c', 32)), _logger.Object, _userEventPublisher.Object);
 
         var result = await svc.Register(new RegisterDto { Code = 1, Name = "X", Email = "e@x.com", Password = "P@ssword1", Role = UserRole.User });
 
@@ -102,7 +105,7 @@ public class AuthServiceTests
         _userRepo.Setup(r => r.EmailExistsAsync(It.IsAny<string>())).ReturnsAsync(false);
         _userRepo.Setup(r => r.CreateAsync(It.IsAny<User>())).ReturnsAsync((User u) => u);
 
-        var svc = new AuthService(_userRepo.Object, BuildConfiguration(new string('d', 64)), _logger.Object);
+        var svc = new AuthService(_userRepo.Object, BuildConfiguration(new string('d', 64)), _logger.Object, _userEventPublisher.Object);
 
         var dto = new RegisterDto { Code = 2, Name = "New", Email = "new@x.com", Password = "P@ssword1", Role = UserRole.User };
 

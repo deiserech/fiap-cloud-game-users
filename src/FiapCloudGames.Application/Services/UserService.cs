@@ -12,7 +12,7 @@ namespace FiapCloudGames.Users.Application.Services
     {
         private readonly IUserRepository _repo;
         private readonly IUserEventPublisher _userEventPublisher;
-                private readonly ILogger<UserService> _logger;
+        private readonly ILogger<UserService> _logger;
 
         public UserService(IUserRepository repo, ILogger<UserService> logger, IUserEventPublisher userEventPublisher)
         {

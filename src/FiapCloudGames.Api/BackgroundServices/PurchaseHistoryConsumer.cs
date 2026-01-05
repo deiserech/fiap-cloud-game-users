@@ -60,7 +60,7 @@ namespace FiapCloudGames.Users.Api.BackgroundServices
 
         private Task ErrorHandler(ProcessErrorEventArgs arg)
         {
-            _logger.LogError($"PurchaseHistoryConsumer error: {arg.Exception}");
+            _logger.LogError("PurchaseHistoryConsumer error: {Ex}", arg.Exception);
             return Task.CompletedTask;
         }
     }

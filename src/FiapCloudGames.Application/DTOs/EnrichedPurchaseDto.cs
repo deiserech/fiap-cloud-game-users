@@ -10,9 +10,8 @@ namespace FiapCloudGames.Users.Application.DTOs
         public Guid UserId { get; set; }
         public int GameCode { get; set; }
         public Guid GameId { get; set; }
+        public string GameTitle { get; set; } = string.Empty;   
         public DateTimeOffset ProcessedAt { get; set; }
-        public bool Success { get; set; }
-        public decimal? Amount { get; set; }
         public GameCategory Category { get; set; }
     }
 }

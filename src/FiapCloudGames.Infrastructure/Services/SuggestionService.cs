@@ -44,16 +44,16 @@ namespace FiapCloudGames.Users.Infrastructure.Services
                     return [];
                 }
 
-                var ownedIds = await GetOwnedGameIdsAsync(userCode);
+                var ownedCodes = await GetOwnedGameCodesAsync(userCode);
                 var suggestions = new List<GameSuggestionDto>();
 
-                await AddCategorySuggestionsAsync(categoryBuckets, ownedIds, suggestions, _maxSuggestions);
+                await AddCategorySuggestionsAsync(categoryBuckets, ownedCodes, suggestions, _maxSuggestions);
 
                 if (suggestions.Count < _maxSuggestions)
                 {
-                    var blockedIds = new HashSet<Guid>(ownedIds);
-                    blockedIds.UnionWith(suggestions.Select(s => s.GameId));
-                    await AddPopularSuggestionsAsync(blockedIds, suggestions, _maxSuggestions);
+                    var blockedCodes = new HashSet<int>(ownedCodes);
+                    blockedCodes.UnionWith(suggestions.Select(s => s.GameCode));
+                    await AddPopularSuggestionsAsync(blockedCodes, suggestions, _maxSuggestions);
                 }
 
                 _logger.LogDebug("Suggestions built. Total: {Count}, Suggestions: {@Suggestions}", suggestions.Count, suggestions);
@@ -72,8 +72,7 @@ namespace FiapCloudGames.Users.Infrastructure.Services
                 .Index(PurchaseHistoryIndex)
                 .Size(0)
                 .Query(q => q.Bool(b => b.Must(
-                    mu => mu.Term(t => t.Field(f => f.UserCode).Value(userCode)),
-                    mu => mu.Term(t => t.Field(f => f.Success).Value(true))
+                    mu => mu.Term(t => t.Field(f => f.UserCode).Value(userCode))
                 )))
                 .Aggregations(a => a.Terms(CategoryAggregationName, t => t.Field(f => f.Category).Size(10).Order(o => o.Descending("_count"))))
             );
@@ -87,15 +86,15 @@ namespace FiapCloudGames.Users.Infrastructure.Services
             return resp.Aggregations.Terms(CategoryAggregationName)?.Buckets;
         }
 
-        private async Task<HashSet<Guid>> GetOwnedGameIdsAsync(int userCode)
+        private async Task<HashSet<int>> GetOwnedGameCodesAsync(int userCode)
         {
             var library = await _libraryService.GetUserLibraryAsync(userCode);
-            return [.. library.Select(l => l.GameId)];
+            return [.. library.Select(l => l.Game.Code)];
         }
 
         private async Task AddCategorySuggestionsAsync(
             IReadOnlyCollection<KeyedBucket<string>> buckets,
-            HashSet<Guid> ownedIds,
+            HashSet<int> ownedGameCodes,
             List<GameSuggestionDto> suggestions,
             int max)
         {
@@ -106,28 +105,28 @@ namespace FiapCloudGames.Users.Infrastructure.Services
 
                 var category = (GameCategory)catInt;
                 var remaining = max - suggestions.Count;
-                var games = await _gameRepository.GetByCategoryAsync(category, remaining);
+                var games = await GetGamesByCategoryFromElasticAsync(category, remaining);
 
                 foreach (var game in games)
                 {
-                    if (ownedIds.Contains(game.Id)) continue;
+                    if (ownedGameCodes.Contains(game.Code)) continue;
 
                     suggestions.Add(MapToSuggestion(game));
                     if (suggestions.Count >= max) break;
                 }
             }
+
         }
 
         private async Task AddPopularSuggestionsAsync(
-            HashSet<Guid> blockedGameIds,
+            HashSet<int> blockedGameCodes,
             List<GameSuggestionDto> suggestions,
             int max)
         {
             var popularResp = await _client.SearchAsync<PurchaseHistoryDocument>(s => s
                 .Index(PurchaseHistoryIndex)
                 .Size(0)
-                .Query(q => q.Term(t => t.Field(f => f.Success).Value(true)))
-                .Aggregations(a => a.Terms(PopularGamesAggregationName, t => t.Field(f => f.GameId).Size(50).Order(o => o.Descending("_count"))))
+                .Aggregations(a => a.Terms(PopularGamesAggregationName, t => t.Field(f => f.GameCode).Size(50).Order(o => o.Descending("_count"))))
             );
 
             if (!popularResp.IsValid)
@@ -145,15 +144,38 @@ namespace FiapCloudGames.Users.Infrastructure.Services
             foreach (var bucket in gameBuckets)
             {
                 if (suggestions.Count >= max) break;
-                if (!Guid.TryParse(bucket.Key, out var gameId)) continue;
-                if (blockedGameIds.Contains(gameId)) continue;
+                if (!int.TryParse(bucket.Key, out var gameCode)) continue;
+                if (blockedGameCodes.Contains(gameCode)) continue;
 
-                var game = await _gameRepository.GetByIdAsync(gameId);
+                var game = await GetGameByCodeFromElasticAsync(gameCode);
                 if (game == null) continue;
 
                 suggestions.Add(MapToSuggestion(game));
-                blockedGameIds.Add(game.Id);
+                blockedGameCodes.Add(game.Code);
             }
+        }
+
+        private async Task<Game?> GetGameByCodeFromElasticAsync(int gameCode)
+        {
+            var response = await _client.SearchAsync<Game>(s => s
+                .Index("games")
+                .Size(1)
+                .Query(q => q
+                    .Bool(b => b
+                        .Must(
+                            mu => mu.Term(t => t.Field(f => f.Code).Value(gameCode))
+                        )
+                    )
+                )
+            );
+
+            if (!response.IsValid)
+            {
+                _logger.LogWarning("Elasticsearch game by code query invalid: {Reason}", response.OriginalException?.Message ?? response.DebugInformation);
+                return null;
+            }
+
+            return response.Documents.FirstOrDefault();
         }
 
         private static GameSuggestionDto MapToSuggestion(Game game) => new()
@@ -163,5 +185,28 @@ namespace FiapCloudGames.Users.Infrastructure.Services
             Title = game.Title,
             Category = game.Category
         };
+        private async Task<IEnumerable<Game>> GetGamesByCategoryFromElasticAsync(GameCategory category, int limit)
+        {
+            var response = await _client.SearchAsync<Game>(s => s
+                .Index("games") 
+                .Size(limit)
+                .Query(q => q
+                    .Term(t => t
+                        .Field(f => f.Category)
+                        .Value((int)category)
+                    )
+                )
+            );
+
+            if (!response.IsValid)
+            {
+                _logger.LogWarning("Elasticsearch game category query invalid: {Reason}", response.OriginalException?.Message ?? response.DebugInformation);
+                return [];
+            }
+
+            return response.Documents;
+        }
+
     }
+
 }

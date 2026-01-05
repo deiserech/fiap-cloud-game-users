@@ -57,15 +57,14 @@ namespace FiapCloudGames.Users.Application.Services
 
             var enriched = new EnrichedPurchaseDto
             {
-                PurchaseId = message.PurchaseId ?? Guid.Empty,
+                PurchaseId = message.PurchaseId.Value,
                 UserCode = message.UserCode,
                 UserId = user.Id,
                 GameCode = message.GameCode,
                 GameId = game.Id,
-                ProcessedAt = message.ProcessedAt ?? DateTimeOffset.UtcNow,
-                Success = message.Success,
-                Amount = null,
-                Category = game.Category
+                ProcessedAt = message!.ProcessedAt.Value,
+                Category = game.Category,
+                GameTitle = game.Title
             };
 
             await _purchaseHistoryEventPublisher.PublishPurchaseHistoryAsync(enriched, cancellationToken);

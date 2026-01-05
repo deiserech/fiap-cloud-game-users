@@ -2,6 +2,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using FiapCloudGames.Users.Application.DTOs;
+using FiapCloudGames.Users.Application.Interfaces.Publishers;
 using FiapCloudGames.Users.Application.Interfaces.Services;
 using FiapCloudGames.Users.Domain.Entities;
 using FiapCloudGames.Users.Domain.Interfaces.Repositories;
@@ -17,12 +18,15 @@ namespace FiapCloudGames.Users.Application.Services
         private readonly IUserRepository _userRepository;
         private readonly IConfiguration _configuration;
         private readonly ILogger<AuthService> _logger;
+        private readonly IUserEventPublisher _userEventPublisher;
 
-        public AuthService(IUserRepository userRepository, IConfiguration configuration, ILogger<AuthService> logger)
+
+        public AuthService(IUserRepository userRepository, IConfiguration configuration, ILogger<AuthService> logger, IUserEventPublisher userEventPublisher)
         {
             _userRepository = userRepository;
             _configuration = configuration;
             _logger = logger;
+            _userEventPublisher = userEventPublisher;
         }
 
         public async Task<AuthResponseDto?> Login(LoginDto loginDto)
@@ -60,6 +64,7 @@ namespace FiapCloudGames.Users.Application.Services
 
             var user = new User
             {
+                Code = registerDto.Code,
                 Name = registerDto.Name,
                 Email = registerDto.Email,
                 Role = registerDto.Role
@@ -67,7 +72,8 @@ namespace FiapCloudGames.Users.Application.Services
 
             user.SetPassword(registerDto.Password);
 
-            await _userRepository.CreateAsync(user);
+            var created = await _userRepository.CreateAsync(user);
+            await _userEventPublisher.PublishUserEventAsync(created);
 
             var token = GenerateJwtToken(user);
 

@@ -2,6 +2,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using FiapCloudGames.Users.Application.DTOs;
+using FiapCloudGames.Users.Domain.Enums;
 using FiapCloudGames.Users.Infrastructure.Elasticsearch;
 using Microsoft.Extensions.Logging;
 using Moq;
@@ -34,9 +35,8 @@ namespace FiapCloudGames.Tests.Infrastructure
                 GameCode = 456,
                 GameId = Guid.NewGuid(),
                 ProcessedAt = DateTimeOffset.UtcNow,
-                Success = true,
-                Amount = 9.99m,
-                Category = FiapCloudGames.Users.Domain.Enums.GameCategory.Action
+                GameTitle = "Test Game",
+                Category = Users.Domain.Enums.GameCategory.Action
             };
 
             // Act
@@ -70,9 +70,8 @@ namespace FiapCloudGames.Tests.Infrastructure
                 GameCode = 2,
                 GameId = Guid.NewGuid(),
                 ProcessedAt = DateTimeOffset.UtcNow,
-                Success = true,
-                Amount = null,
-                Category = FiapCloudGames.Users.Domain.Enums.GameCategory.Casual
+                GameTitle = "Test Game",
+                Category = GameCategory.Casual
             };
 
             // Act

@@ -1,9 +1,5 @@
-using System;
-using System.Threading;
-using System.Threading.Tasks;
 using FiapCloudGames.Users.Application.DTOs;
 using FiapCloudGames.Users.Application.Interfaces.Services;
-using FiapCloudGames.Users.Infrastructure.Elasticsearch;
 using Microsoft.Extensions.Logging;
 using Nest;
 
@@ -35,8 +31,7 @@ namespace FiapCloudGames.Users.Infrastructure.Elasticsearch
                     GameCode = purchase.GameCode,
                     GameId = purchase.GameId,
                     ProcessedAt = purchase.ProcessedAt,
-                    Success = purchase.Success,
-                    Amount = purchase.Amount,
+                    GameTitle = purchase.GameTitle,
                     Category = purchase.Category
                 };
 
@@ -44,6 +39,7 @@ namespace FiapCloudGames.Users.Infrastructure.Elasticsearch
                 if (!resp.IsValid)
                 {
                     _logger.LogWarning("Failed to index purchase history: {Reason}", resp.OriginalException?.Message ?? resp.DebugInformation);
+                    return;
                 }
                 _logger.LogDebug("Succefully indexed purchase history {@Purchase}", doc);
             }
@@ -65,11 +61,10 @@ namespace FiapCloudGames.Users.Infrastructure.Elasticsearch
                             .Keyword(k => k.Name(n => n.UserId))
                             .Keyword(k => k.Name(n => n.GameId))
                             .Keyword(k => k.Name(n => n.Category))
+                            .Text(nu => nu.Name(n => n.GameTitle))
                             .Number(nu => nu.Name(n => n.UserCode).Type(NumberType.Integer))
                             .Number(nu => nu.Name(n => n.GameCode).Type(NumberType.Integer))
-                            .Number(nu => nu.Name(n => n.Amount).Type(NumberType.Double))
                             .Date(d => d.Name(n => n.ProcessedAt))
-                            .Boolean(b => b.Name(n => n.Success))
                         )
                     ), ct: cancellationToken
                 );
