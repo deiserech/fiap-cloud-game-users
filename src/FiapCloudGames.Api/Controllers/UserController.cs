@@ -17,10 +17,44 @@ namespace FiapCloudGames.Users.Api.Controllers
     public class UserController : ControllerBase
     {
         private readonly IUserService _service;
+        private readonly IConfiguration _configuration;
 
-        public UserController(IUserService service)
+        public UserController(IUserService service, IConfiguration configuration)
         {
             _service = service;
+            _configuration = configuration;
+        }
+
+        /// <summary>
+        /// Obtém a lista de usuários
+        /// </summary>
+        /// <returns>Lista de usuários</returns>
+        /// <response code="200">Lista retornada com sucesso</response>
+        /// <response code="401">Não autorizado</response>
+        [HttpGet]
+        [ProducesResponseType(typeof(IEnumerable<UserDto>), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        public async Task<IActionResult> GetUsers()
+        {
+            var internalKey = _configuration["InternalApiKeys:GetUsers"] ?? _configuration["InternalApiKey"];
+            var headerKey = Request.Headers["X-Internal-Api-Key"].FirstOrDefault();
+
+            var hasValidInternalKey = !string.IsNullOrWhiteSpace(internalKey) && headerKey == internalKey;
+
+            if (!hasValidInternalKey)
+            {
+                var isAuthenticated = User?.Identity?.IsAuthenticated ?? false;
+                var isAdmin = User?.IsInRole("Admin") ?? false;
+
+                if (!isAuthenticated || !isAdmin)
+                {
+                    return this.UnauthorizedProblem("Não autorizado", "Usuário não possui permissão para listar usuários.");
+                }
+            }
+
+            var users = await _service.GetAllAsync();
+            var dtos = users.Select(UserDto.FromDomainEntity);
+            return Ok(dtos);
         }
 
         /// <summary>

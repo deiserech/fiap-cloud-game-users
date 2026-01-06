@@ -62,5 +62,12 @@ namespace FiapCloudGames.Users.Infrastructure.Repositories
             return await _context.Users.FirstOrDefaultAsync(u => u.Code == code);
         }
 
+        public async Task<IReadOnlyCollection<User>> GetAllAsync()
+        {
+            _logger.LogDebug("Buscando lista de usuários");
+            var users = await _context.Users.AsNoTracking().ToListAsync();
+            return users;
+        }
+
     }
 }

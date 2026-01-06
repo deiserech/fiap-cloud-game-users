@@ -62,5 +62,12 @@ namespace FiapCloudGames.Users.Application.Services
             return await _repo.GetByCodeAsync(code);
         }
 
+        public async Task<IReadOnlyCollection<User>> GetAllAsync()
+        {
+            using var activity = Tracing.ActivitySource.StartActivity($"{nameof(UserService)}.GetAllAsync");
+            _logger.LogInformation("Buscando lista de usuários");
+            return await _repo.GetAllAsync();
+        }
+
     }
 }

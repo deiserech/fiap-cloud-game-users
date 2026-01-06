@@ -10,5 +10,6 @@ namespace FiapCloudGames.Users.Domain.Interfaces.Repositories
         Task<User> CreateAsync(User user);
         Task<User?> GetByCodeAsync(int code);
         Task<bool> EmailExistsAsync(string email);
+        Task<IReadOnlyCollection<User>> GetAllAsync();
     }
 }

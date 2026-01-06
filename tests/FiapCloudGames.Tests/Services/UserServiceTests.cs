@@ -87,4 +87,25 @@ public class UserServiceTests
         result.PasswordHash.ShouldNotBeNullOrEmpty();
         _repo.Verify(r => r.CreateAsync(It.Is<User>(u => u.Email == dto.Email && u.Name == dto.Name && u.Code == dto.Code)), Times.Once);
     }
+
+    [Fact]
+    public async Task GetAllAsync_DelegatesToRepository()
+    {
+        // Arrange
+        var users = new[]
+        {
+            new User { Id = Guid.NewGuid(), Code = 1, Name = "U1", Email = "u1@x.com", Role = FiapCloudGames.Users.Domain.Enums.UserRole.User },
+            new User { Id = Guid.NewGuid(), Code = 2, Name = "U2", Email = "u2@x.com", Role = FiapCloudGames.Users.Domain.Enums.UserRole.User }
+        };
+
+        _repo.Setup(r => r.GetAllAsync()).ReturnsAsync(users);
+        var svc = CreateService();
+
+        // Act
+        var result = await svc.GetAllAsync();
+
+        // Assert
+        result.ShouldBe(users);
+        _repo.Verify(r => r.GetAllAsync(), Times.Once);
+    }
 }
