@@ -8,6 +8,7 @@ using Shouldly;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 using Moq;
 using Xunit;
 
@@ -50,7 +51,7 @@ public class UserControllerTests
 
         _service.Setup(s => s.GetAllAsync()).ReturnsAsync(users);
 
-        var identity = new ClaimsIdentity(new[] { new Claim(ClaimTypes.Role, "Admin") });
+        var identity = new ClaimsIdentity(new[] { new Claim(ClaimTypes.Role, "Admin") }, authenticationType: "TestAuth");
         var principal = new ClaimsPrincipal(identity);
         var controller = CreateController(_service, principal);
 
