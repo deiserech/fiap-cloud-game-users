@@ -10,14 +10,21 @@ namespace FiapCloudGames.Users.Api.Extensions
     {
         public static IServiceCollection AddFiapCloudGamesOpenTelemetry(this IServiceCollection services)
         {
+            var environmentName = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Unknown";
+
             services.AddOpenTelemetry()
                 .ConfigureResource(resource => resource
-                    .AddService("FiapCloudGamesWebApp"))
+                    .AddService(serviceName: "fiap-users-api")
+                    .AddAttributes(new[]
+                    {
+                        new KeyValuePair<string, object>("deployment.environment", environmentName)
+                    }))
                 .WithTracing(builder =>
                 {
                     builder
-                        .AddSource("FiapCloudGames.Application")
+                        .AddSource("FiapCloudGames.Users.Application")
                         .AddAspNetCoreInstrumentation()
+                        .AddHttpClientInstrumentation()
                         .AddSqlClientInstrumentation()
                         .AddOtlpExporter(ConfigureOtlpExporter);
                 })
@@ -39,8 +46,13 @@ namespace FiapCloudGames.Users.Api.Extensions
         private static void ConfigureOtlpExporter(OtlpExporterOptions options)
         {
             options.Endpoint = new Uri("https://otlp.nr-data.net:4317");
+            options.Protocol = OtlpExportProtocol.Grpc;
+
             var newRelicKey = Environment.GetEnvironmentVariable("NEW_RELIC_LICENSE_KEY");
-            options.Headers = $"api-key={newRelicKey}";
+            if (!string.IsNullOrWhiteSpace(newRelicKey))
+            {
+                options.Headers = $"api-key={newRelicKey}";
+            }
         }
     }
 }

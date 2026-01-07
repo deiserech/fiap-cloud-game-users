@@ -2,6 +2,7 @@ using Azure.Messaging.ServiceBus;
 using FiapCloudGames.Users.Application.DTOs;
 using FiapCloudGames.Users.Application.Interfaces.Services;
 using FiapCloudGames.Users.Infrastructure.ServiceBus;
+using FiapCloudGames.Users.Shared.Tracing;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 
@@ -36,13 +37,21 @@ namespace FiapCloudGames.Users.Api.BackgroundServices
 
             _processor.ProcessMessageAsync += async args =>
             {
-                var body = args.Message.Body.ToString();
+                var message = args.Message;
+
+                using var activity = ServiceBusTracingHelper.StartConsumerActivity(
+                    message,
+                    "Users.PurchaseHistoryConsumer.Process",
+                    topic,
+                    subscription);
+
+                var body = message.Body.ToString();
                 var msg = JsonConvert.DeserializeObject<EnrichedPurchaseDto>(body);
 
                 if (msg == null)
                 {
                     _logger.LogWarning("PurchaseHistoryConsumer: mensagem inválida");
-                    await args.CompleteMessageAsync(args.Message);
+                    await args.CompleteMessageAsync(message);
                     return;
                 }
 
@@ -51,7 +60,7 @@ namespace FiapCloudGames.Users.Api.BackgroundServices
 
                 await historyService.IndexPurchaseAsync(msg, args.CancellationToken);
 
-                await args.CompleteMessageAsync(args.Message);
+                await args.CompleteMessageAsync(message);
             };
 
             _processor.ProcessErrorAsync += ErrorHandler;
