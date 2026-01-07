@@ -47,12 +47,8 @@ builder.Services.AddSingleton(new ServiceBusClient(sbConnectionString));
 builder.Services.AddSingleton<IServiceBusClientWrapper, ServiceBusClientWrapper>();
 builder.Services.AddSingleton<IServiceBusPublisher, ServiceBusPublisher>();
 
-//var esUri = configuration["Elasticsearch:Uri"] ?? "http://localhost:9200";
-//var esSettings = new ConnectionSettings(new Uri(esUri))
-//    .BasicAuthentication(configuration["Elasticsearch:Username"], configuration["Elasticsearch:Password"]);
-//esSettings.DefaultIndex("purchases-history");
-//builder.Services.AddSingleton<IElasticClient>(new ElasticClient(esSettings));
-var settings = new ConnectionSettings(new Uri(configuration["Elasticsearch:Uri"]?? ""))
+var esUri = configuration["Elasticsearch:Uri"] ?? "http://localhost:9200";
+var settings = new ConnectionSettings(new Uri(esUri))
     .BasicAuthentication(configuration["Elasticsearch:Username"], configuration["Elasticsearch:Password"])
     .ServerCertificateValidationCallback((o, certificate, chain, errors) => true); // Ignora validação do certificado
 var client = new ElasticClient(settings);
