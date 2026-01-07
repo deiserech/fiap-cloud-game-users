@@ -29,6 +29,7 @@
 		<PackageReference Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" Version="1.13.1" />
 		<PackageReference Include="OpenTelemetry.Extensions.Hosting" Version="1.13.1" />
 		<PackageReference Include="OpenTelemetry.Instrumentation.AspNetCore" Version="1.12.0" />
+		<PackageReference Include="OpenTelemetry.Instrumentation.Http" Version="1.14.0" />
 		<PackageReference Include="OpenTelemetry.Instrumentation.Runtime" Version="1.12.0" />  
 		<!-- Eu não usaria uma biblioteca em versão beta em prod, usei apenas por ser um projeto de estudos -->
 		<PackageReference Include="OpenTelemetry.Instrumentation.SqlClient" Version="1.12.0-beta.3" />

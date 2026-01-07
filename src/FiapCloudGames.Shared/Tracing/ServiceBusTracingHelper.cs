@@ -17,7 +17,7 @@ namespace FiapCloudGames.Users.Shared.Tracing
             var traceParent = traceParentObj as string;
             var traceState = traceStateObj as string;
 
-            ActivityContext parentContext;
+            ActivityContext parentContext = default;
             var hasParent = !string.IsNullOrWhiteSpace(traceParent) &&
                             ActivityContext.TryParse(traceParent, traceState, out parentContext);
 
