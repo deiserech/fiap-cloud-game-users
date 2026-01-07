@@ -32,6 +32,7 @@ namespace FiapCloudGames.Users.Api.Controllers
         /// <response code="200">Lista retornada com sucesso</response>
         /// <response code="401">Não autorizado</response>
         [HttpGet]
+        [AllowAnonymous]
         [ProducesResponseType(typeof(IEnumerable<UserDto>), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public async Task<IActionResult> GetUsers()
@@ -43,13 +44,7 @@ namespace FiapCloudGames.Users.Api.Controllers
 
             if (!hasValidInternalKey)
             {
-                var isAuthenticated = User?.Identity?.IsAuthenticated ?? false;
-                var isAdmin = User?.IsInRole("Admin") ?? false;
-
-                if (!isAuthenticated || !isAdmin)
-                {
-                    return this.UnauthorizedProblem("Não autorizado", "Usuário não possui permissão para listar usuários.");
-                }
+                return this.UnauthorizedProblem("Não autorizado", "Usuário não possui permissão para listar usuários.");
             }
 
             var users = await _service.GetAllAsync();
