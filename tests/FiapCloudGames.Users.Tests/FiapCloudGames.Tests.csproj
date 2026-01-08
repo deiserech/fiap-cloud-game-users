@@ -42,10 +42,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\FiapCloudGames.Api\FiapCloudGames.Users.Api.csproj" />
-    <ProjectReference Include="..\..\src\FiapCloudGames.Application\FiapCloudGames.Users.Application.csproj" />
-    <ProjectReference Include="..\..\src\FiapCloudGames.Domain\FiapCloudGames.Users.Domain.csproj" />
-    <ProjectReference Include="..\..\src\FiapCloudGames.Infrastructure\FiapCloudGames.Users.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\src\FiapCloudGames.Users.Api\FiapCloudGames.Users.Api.csproj" />
+    <ProjectReference Include="..\..\src\FiapCloudGames.Users.Application\FiapCloudGames.Users.Application.csproj" />
+    <ProjectReference Include="..\..\src\FiapCloudGames.Users.Domain\FiapCloudGames.Users.Domain.csproj" />
+    <ProjectReference Include="..\..\src\FiapCloudGames.Users.Infrastructure\FiapCloudGames.Users.Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>

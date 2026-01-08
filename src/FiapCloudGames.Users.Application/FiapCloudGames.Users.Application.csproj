@@ -13,8 +13,8 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<ProjectReference Include="..\FiapCloudGames.Domain\FiapCloudGames.Users.Domain.csproj" />
-		<ProjectReference Include="..\FiapCloudGames.Shared\FiapCloudGames.Users.Shared.csproj" />
+		<ProjectReference Include="..\FiapCloudGames.Users.Domain\FiapCloudGames.Users.Domain.csproj" />
+		<ProjectReference Include="..\FiapCloudGames.Users.Shared\FiapCloudGames.Users.Shared.csproj" />
 	</ItemGroup>
 
 </Project>

@@ -7,7 +7,7 @@ using Moq;
 using Shouldly;
 using Xunit;
 
-namespace FiapCloudGames.Tests.Services;
+namespace FiapCloudGames.Users.Tests.Services;
 
 public class GameServiceTests
 {
