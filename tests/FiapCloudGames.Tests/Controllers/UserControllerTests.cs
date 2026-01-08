@@ -44,16 +44,28 @@ public class UserControllerTests
     {
         // Arrange
         var users = new List<User>
-        {
-            new() { Id = Guid.NewGuid(), Code = 1, Name = "User1", Email = "u1@example.com", Role = UserRole.Admin },
-            new() { Id = Guid.NewGuid(), Code = 2, Name = "User2", Email = "u2@example.com", Role = UserRole.User }
-        };
+            {
+                new() { Id = Guid.NewGuid(), Code = 1, Name = "User1", Email = "u1@example.com", Role = UserRole.Admin },
+                new() { Id = Guid.NewGuid(), Code = 2, Name = "User2", Email = "u2@example.com", Role = UserRole.User }
+            };
 
         _service.Setup(s => s.GetAllAsync()).ReturnsAsync(users);
 
-        var identity = new ClaimsIdentity(new[] { new Claim(ClaimTypes.Role, "Admin") }, authenticationType: "TestAuth");
+        // Simule a configuração da chave interna
+        var configDict = new Dictionary<string, string>
+            {
+                { "InternalApiKeys:GetUsers", "test-key" }
+            };
+        var configuration = new ConfigurationBuilder()
+            .AddInMemoryCollection(configDict)
+            .Build();
+
+        var identity = new ClaimsIdentity([new Claim(ClaimTypes.Role, "Admin")], authenticationType: "TestAuth");
         var principal = new ClaimsPrincipal(identity);
-        var controller = CreateController(_service, principal);
+        var controller = CreateController(_service, principal, configuration);
+
+        // Adicione o header X-Internal-Api-Key
+        controller.ControllerContext.HttpContext.Request.Headers["X-Internal-Api-Key"] = "test-key";
 
         // Act
         var result = await controller.GetUsers();
