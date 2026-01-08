@@ -12,9 +12,9 @@
   </PropertyGroup>
 
 	<ItemGroup>
-		<ProjectReference Include="..\FiapCloudGames.Application\FiapCloudGames.Users.Application.csproj" />
-		<ProjectReference Include="..\FiapCloudGames.Infrastructure\FiapCloudGames.Users.Infrastructure.csproj" />
-		<ProjectReference Include="..\FiapCloudGames.Shared\FiapCloudGames.Users.Shared.csproj" />
+		<ProjectReference Include="..\FiapCloudGames.Users.Application\FiapCloudGames.Users.Application.csproj" />
+		<ProjectReference Include="..\FiapCloudGames.Users.Infrastructure\FiapCloudGames.Users.Infrastructure.csproj" />
+		<ProjectReference Include="..\FiapCloudGames.Users.Shared\FiapCloudGames.Users.Shared.csproj" />
 	</ItemGroup>
 
 	<ItemGroup>
