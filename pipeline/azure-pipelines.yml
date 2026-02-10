@@ -16,9 +16,8 @@ variables:
   buildConfiguration: "Release"
   azureSubscription: 'Assinatura do Azure 1(700427bd-9535-44b3-8d18-0420dd7e02cf)'
   containerRegistry: 'fiapcloudgames-acr-connection'
-  dockerRepository: 'fiap-cloud-games-api'
-  appServicePlanName: 'ASP-rgfiapcloudgames-85ab'
-  appServicePlanResourceGroup: 'rg-fiapcloudgames'
+  dockerRepository: 'fiap-cloud-games-users'
+  resourceGroup: 'rg-fiapcloudgames'
   testsArtifactName: 'fiap-cloud-games-binaries'
   testsArtifactPath: '$(Pipeline.Workspace)/test-binaries'
 
@@ -28,6 +27,14 @@ stages:
     jobs:
       - job: Build
         steps:
+          - task: Cache@2
+            inputs:
+              key: 'nuget | "$(Agent.OS)" | **/packages.lock.json'
+              restoreKeys: |
+                nuget | "$(Agent.OS)"
+              path: ~/.nuget/packages
+            displayName: 'Cache NuGet packages'
+            
           - task: UseDotNet@2
             displayName: "Install .NET SDK"
             inputs:
@@ -40,7 +47,6 @@ stages:
           - task: DotNetCoreCLI@2
             displayName: "Build Solution"
             inputs:
-              azureSubscription: '$(azureSubscription)'
               command: 'build'
               projects: 'FiapCloudGames.Users.sln'
               arguments: '--configuration $(buildConfiguration) --no-restore'
@@ -64,7 +70,6 @@ stages:
           - task: DotNetCoreCLI@2
             displayName: "Run Unit Tests"
             inputs:
-              azureSubscription: '$(azureSubscription)'
               command: 'test'
               projects: '$(testsArtifactPath)/FiapCloudGames.Tests.dll'
               arguments: '--no-build --collect:"XPlat Code Coverage"'
@@ -86,6 +91,7 @@ stages:
                 tags: |
                   latest
                   $(Build.BuildId)
+                  $(Build.SourceBranchName)-$(Build.BuildId)-$(Date:yyyyMMdd)
                 buildContext: .
                 containerRegistry: '$(containerRegistry)'
                 buildArguments: --no-cache
@@ -98,13 +104,17 @@ stages:
                 tags: |
                   latest
                   $(Build.BuildId)
+                  $(Build.SourceBranchName)-$(Build.BuildId)-$(Date:yyyyMMdd)
                 containerRegistry: '$(containerRegistry)'
 
             - task: AzureCLI@2
-              displayName: 'Set App Service Plan to 2 Instances'
+              displayName: 'Deploy to AKS'
               inputs:
                 azureSubscription: '$(azureSubscription)'
-                scriptType: 'ps'
+                scriptType: 'bash'
                 scriptLocation: 'inlineScript'
                 inlineScript: |
-                  az appservice plan update --name $(appServicePlanName) --resource-group $(appServicePlanResourceGroup) --number-of-workers 2
+                  az aks get-credentials --resource-group $(resourceGroup) --name $(aksClusterName)
+                  kubectl apply -f k8s/deployment.yaml
+                  kubectl apply -f k8s/hpa.yaml
+                  kubectl apply -f k8s/secretproviderclass.yaml
