@@ -85,7 +85,7 @@ stages:
                 tags: |
                   latest
                   $(Build.BuildId)
-                  $(Build.SourceBranchName)-$(Build.BuildId)-$(Date:yyyyMMdd)
+                  $(Build.SourceBranchName)-$(Build.BuildId)
                 buildContext: .
                 containerRegistry: '$(containerRegistry)'
                 buildArguments: --no-cache
@@ -98,7 +98,7 @@ stages:
                 tags: |
                   latest
                   $(Build.BuildId)
-                  $(Build.SourceBranchName)-$(Build.BuildId)-$(Date:yyyyMMdd)
+                  $(Build.SourceBranchName)-$(Build.BuildId)
                 containerRegistry: '$(containerRegistry)'
 
             - task: AzureCLI@2
