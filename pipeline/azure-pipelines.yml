@@ -20,6 +20,8 @@ variables:
   resourceGroup: 'rg-fiapcloudgames'
   testsArtifactName: 'fiap-cloud-games-binaries'
   testsArtifactPath: '$(Pipeline.Workspace)/test-binaries'
+  aksClusterName: '<nome-do-seu-aks>'
+  keyVaultName: 'kv-fiapcloudgames'
 
 stages:
   - stage: Build
@@ -115,6 +117,21 @@ stages:
                 scriptLocation: 'inlineScript'
                 inlineScript: |
                   az aks get-credentials --resource-group $(resourceGroup) --name $(aksClusterName)
+                  sqlConn=$(az keyvault secret show --vault-name $(keyVaultName) --name sql-users-connection --query value -o tsv)
+                  sbConn=$(az keyvault secret show --vault-name $(keyVaultName) --name servicebus-connection --query value -o tsv)
+                  esUser=$(az keyvault secret show --vault-name $(keyVaultName) --name elasticsearch-user --query value -o tsv)
+                  esPass=$(az keyvault secret show --vault-name $(keyVaultName) --name elasticsearch-password --query value -o tsv)
+                  internalApiKey=$(az keyvault secret show --vault-name $(keyVaultName) --name internal-api-key-getusers --query value -o tsv)
+
+                  kubectl create secret generic users-api-secrets \
+                    --from-literal=DefaultConnection="$sqlConn" \
+                    --from-literal=ServiceBusConnectionString="$sbConn" \
+                    --from-literal=ElasticsearchUsername="$esUser" \
+                    --from-literal=ElasticsearchPassword="$esPass" \
+                    --from-literal=InternalApiKeys__GetUsers="$internalApiKey" \
+                    --dry-run=client -o yaml | kubectl apply -f -
+
+                  kubectl apply -f k8s/configmap.yaml
+                  kubectl apply -f k8s/service.yaml
                   kubectl apply -f k8s/deployment.yaml
                   kubectl apply -f k8s/hpa.yaml
-                  kubectl apply -f k8s/secretproviderclass.yaml
