@@ -29,14 +29,6 @@ stages:
     jobs:
       - job: Build
         steps:
-          - task: Cache@2
-            inputs:
-              key: 'nuget | "$(Agent.OS)" | **/packages.lock.json'
-              restoreKeys: |
-                nuget | "$(Agent.OS)"
-              path: ~/.nuget/packages
-            displayName: 'Cache NuGet packages'
-            
           - task: UseDotNet@2
             displayName: "Install .NET SDK"
             inputs:
