@@ -14,7 +14,7 @@ pool:
 
 variables:
   buildConfiguration: "Release"
-  azureSubscription: 'Assinatura do Azure 1(700427bd-9535-44b3-8d18-0420dd7e02cf)'
+  azureSubscription: 'Azure for Students(a823f9d1-e0f4-4b84-b935-0e859c9f64b3)'
   containerRegistry: 'fiapcloudgames-acr-connection'
   dockerRepository: 'fiap-cloud-games-users'
   resourceGroup: 'rg-fiapcloudgames'
