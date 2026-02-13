@@ -14,8 +14,8 @@ pool:
 
 variables:
   buildConfiguration: "Release"
-  azureSubscription: 'PosFiap'
-  containerRegistry: 'fiapcloudgamest04acr'
+  azureSubscription: 'PosFiapT4'
+  containerRegistry: 'fiapcloudgames-t04-acr-connection'
   dockerRepository: 'fiap-cloud-games-users'
   resourceGroup: 'rg-fiapcloudgamest04-core'
   testsArtifactName: 'fiap-cloud-games-binaries'
