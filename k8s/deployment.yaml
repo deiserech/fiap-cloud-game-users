@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: fiap-cloud-games-users
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: fiap-cloud-games-users
+  template:
+    metadata:
+      labels:
+        app: fiap-cloud-games-users
+    spec:
+      containers:
+        - name: fiap-cloud-games-users
+          image: fiapcloudgamesacr.azurecr.io/fiap-cloud-games-users:latest
+          ports:
+            - containerPort: 80
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+          env:
+            - name: ConnectionStrings__DefaultConnection
+              valueFrom:
+                secretKeyRef:
+                  name: users-api-secrets
+                  key: DefaultConnection
+            - name: ServiceBus__ConnectionString
+              valueFrom:
+                secretKeyRef:
+                  name: users-api-secrets
+                  key: ServiceBusConnectionString
+            - name: Elasticsearch__Username
+              valueFrom:
+                secretKeyRef:
+                  name: users-api-secrets
+                  key: ElasticsearchUsername
+            - name: Elasticsearch__Password
+              valueFrom:
+                secretKeyRef:
+                  name: users-api-secrets
+                  key: ElasticsearchPassword
+

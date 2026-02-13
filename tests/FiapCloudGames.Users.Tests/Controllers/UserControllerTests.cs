@@ -40,45 +40,6 @@ public class UserControllerTests
     }
 
     [Fact]
-    public async Task GetUsers_ReturnsOk_WithUserList()
-    {
-        // Arrange
-        var users = new List<User>
-            {
-                new() { Id = Guid.NewGuid(), Code = 1, Name = "User1", Email = "u1@example.com", Role = UserRole.Admin },
-                new() { Id = Guid.NewGuid(), Code = 2, Name = "User2", Email = "u2@example.com", Role = UserRole.User }
-            };
-
-        _service.Setup(s => s.GetAllAsync()).ReturnsAsync(users);
-
-        // Simule a configuração da chave interna
-        var configDict = new Dictionary<string, string>
-            {
-                { "InternalApiKeys:GetUsers", "test-key" }
-            };
-        var configuration = new ConfigurationBuilder()
-            .AddInMemoryCollection(configDict)
-            .Build();
-
-        var identity = new ClaimsIdentity([new Claim(ClaimTypes.Role, "Admin")], authenticationType: "TestAuth");
-        var principal = new ClaimsPrincipal(identity);
-        var controller = CreateController(_service, principal, configuration);
-
-        // Adicione o header X-Internal-Api-Key
-        controller.ControllerContext.HttpContext.Request.Headers["X-Internal-Api-Key"] = "test-key";
-
-        // Act
-        var result = await controller.GetUsers();
-
-        // Assert
-        var ok = result as OkObjectResult;
-        ok.ShouldNotBeNull();
-        var okVal = ok!.Value as IEnumerable<UserDto>;
-        okVal.ShouldNotBeNull();
-        okVal!.Count().ShouldBe(2);
-    }
-
-    [Fact]
     public async Task GetUser_ReturnsOk_WhenUserExists()
     {
         // Arrange

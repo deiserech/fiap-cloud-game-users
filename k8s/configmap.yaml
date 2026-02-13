@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: users-api-config
+  labels:
+    app: fiap-cloud-games-users
+data:
+  ASPNETCORE_ENVIRONMENT: "Production"
+  ServiceBus__UseWebSockets: "false"
+  Elasticsearch__IndexName: "users"
+  Elasticsearch__Uri: "<url-do-elasticsearch>"
