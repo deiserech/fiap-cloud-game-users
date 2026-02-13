@@ -14,14 +14,14 @@ pool:
 
 variables:
   buildConfiguration: "Release"
-  azureSubscription: 'Azure for Students(a823f9d1-e0f4-4b84-b935-0e859c9f64b3)'
-  containerRegistry: 'fiapcloudgames-acr-connection'
+  azureSubscription: 'PosFiap'
+  containerRegistry: 'fiapcloudgamest04acr'
   dockerRepository: 'fiap-cloud-games-users'
-  resourceGroup: 'rg-fiapcloudgames'
+  resourceGroup: 'rg-fiapcloudgamest04-core'
   testsArtifactName: 'fiap-cloud-games-binaries'
   testsArtifactPath: '$(Pipeline.Workspace)/test-binaries'
-  aksClusterName: '<nome-do-seu-aks>'
-  keyVaultName: 'kv-fiapcloudgames'
+  aksClusterName: 'fiapcloudgamest04aks'
+  keyVaultName: 'kv-fiapcloudgamest04s'
 
 stages:
   - stage: Build
