@@ -71,7 +71,7 @@ stages:
   - stage: Publish
     displayName: "Publish Artifacts"
     dependsOn: Test
-    condition: and(succeeded(), or(eq(variables['Build.SourceBranch'], 'refs/heads/main'), eq(variables['Build.Reason'], 'Manual')))
+    condition: and(succeeded(), or(eq(variables['Build.SourceBranch'], 'refs/heads/main'), eq(variables['Build.SourceBranch'], 'refs/heads/develop')))
     jobs:
       - job: Publish
         steps:
