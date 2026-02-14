@@ -47,15 +47,25 @@ builder.Services.AddSingleton(new ServiceBusClient(sbConnectionString));
 builder.Services.AddSingleton<IServiceBusClientWrapper, ServiceBusClientWrapper>();
 builder.Services.AddSingleton<IServiceBusPublisher, ServiceBusPublisher>();
 
-var esUri = configuration["Elasticsearch:Uri"] ?? "http://localhost:9200";
-var settings = new ConnectionSettings(new Uri(esUri))
-    .BasicAuthentication(configuration["Elasticsearch:Username"], configuration["Elasticsearch:Password"])
-    .ServerCertificateValidationCallback((o, certificate, chain, errors) => true); // Ignora validação do certificado
-var client = new ElasticClient(settings);
-builder.Services.AddSingleton<IElasticClient>(client);
+var isElasticEnabled = configuration.GetValue("Features:ElasticSearch:Enabled", false);
 
-builder.Services.AddScoped<IPurchaseHistoryService, PurchaseHistoryService>();
-builder.Services.AddScoped<ISuggestionService, SuggestionService>();
+if (isElasticEnabled)
+{
+    var esUri = configuration["Elasticsearch:Uri"] ?? "http://localhost:9200";
+    var settings = new ConnectionSettings(new Uri(esUri))
+        .BasicAuthentication(configuration["Elasticsearch:Username"], configuration["Elasticsearch:Password"])
+        .ServerCertificateValidationCallback((o, certificate, chain, errors) => true); // Ignora validação do certificado
+    var client = new ElasticClient(settings);
+    builder.Services.AddSingleton<IElasticClient>(client);
+
+    builder.Services.AddScoped<IPurchaseHistoryService, PurchaseHistoryService>();
+    builder.Services.AddScoped<ISuggestionService, SuggestionService>();
+}
+else
+{
+    builder.Services.AddScoped<IPurchaseHistoryService, NoopPurchaseHistoryService>();
+    builder.Services.AddScoped<ISuggestionService, NoopSuggestionService>();
+}
 builder.Services.AddScoped<IGameMessageHandler, GameMessageHandler>();
 builder.Services.AddScoped<IPurchaseMessageHandler, PurchaseMessageHandler>();
 

@@ -20,8 +20,8 @@ variables:
   resourceGroup: 'rg-fiapcloudgamest04-core'
   testsArtifactName: 'fiap-cloud-games-binaries'
   testsArtifactPath: '$(Pipeline.Workspace)/test-binaries'
-  aksClusterName: 'fiapcloudgamest04aks'
-  keyVaultName: 'kv-fiapcloudgamest04s'
+  aksClusterName: 'fiapcloudgamest04-aks'
+  keyVaultName: 'kv-fiapcloudgamest04'
 
 stages:
   - stage: Build
@@ -45,7 +45,7 @@ stages:
               projects: 'FiapCloudGames.Users.sln'
               arguments: '--configuration $(buildConfiguration) --no-restore'
 
-          - publish: $(Build.SourcesDirectory)/tests/FiapCloudGames.Tests/bin/Release/net8.0/
+          - publish: $(Build.SourcesDirectory)/tests/FiapCloudGames.Users.Tests/bin/Release/net8.0/
             displayName: "Publish Binaries"
             artifact: $(testsArtifactName)
 
@@ -65,7 +65,7 @@ stages:
             displayName: "Run Unit Tests"
             inputs:
               command: 'test'
-              projects: '$(testsArtifactPath)/FiapCloudGames.Tests.dll'
+              projects: '$(testsArtifactPath)/FiapCloudGames.Users.Tests.dll'
               arguments: '--no-build --collect:"XPlat Code Coverage"'
               testRunTitle: 'Test'
 
@@ -81,14 +81,16 @@ stages:
               inputs:
                 command: build
                 repository: $(dockerRepository)
-                Dockerfile: src/FiapCloudGames.Api/Dockerfile
+                Dockerfile: src/FiapCloudGames.Users.Api/Dockerfile
+                buildContext: $(Build.SourcesDirectory)
                 tags: |
                   latest
                   $(Build.BuildId)
                   $(Build.SourceBranchName)-$(Build.BuildId)
-                buildContext: .
                 containerRegistry: '$(containerRegistry)'
-                buildArguments: --no-cache
+                arguments: --no-cache
+                buildArguments: |
+                  BUILD_CONFIGURATION=$(buildConfiguration)
 
             - task: Docker@2
               displayName: 'Push Docker image to ACR'
@@ -105,24 +107,10 @@ stages:
               displayName: 'Deploy to AKS'
               inputs:
                 azureSubscription: '$(azureSubscription)'
-                scriptType: 'bash'
+                scriptType: 'ps'
                 scriptLocation: 'inlineScript'
                 inlineScript: |
                   az aks get-credentials --resource-group $(resourceGroup) --name $(aksClusterName)
-                  sqlConn=$(az keyvault secret show --vault-name $(keyVaultName) --name sql-users-connection --query value -o tsv)
-                  sbConn=$(az keyvault secret show --vault-name $(keyVaultName) --name servicebus-connection --query value -o tsv)
-                  esUser=$(az keyvault secret show --vault-name $(keyVaultName) --name elasticsearch-user --query value -o tsv)
-                  esPass=$(az keyvault secret show --vault-name $(keyVaultName) --name elasticsearch-password --query value -o tsv)
-                  internalApiKey=$(az keyvault secret show --vault-name $(keyVaultName) --name internal-api-key-getusers --query value -o tsv)
-
-                  kubectl create secret generic users-api-secrets \
-                    --from-literal=DefaultConnection="$sqlConn" \
-                    --from-literal=ServiceBusConnectionString="$sbConn" \
-                    --from-literal=ElasticsearchUsername="$esUser" \
-                    --from-literal=ElasticsearchPassword="$esPass" \
-                    --from-literal=InternalApiKeys__GetUsers="$internalApiKey" \
-                    --dry-run=client -o yaml | kubectl apply -f -
-
                   kubectl apply -f k8s/configmap.yaml
                   kubectl apply -f k8s/service.yaml
                   kubectl apply -f k8s/deployment.yaml

@@ -1,8 +1,9 @@
-FROM mcr.microsoft.com/dotnet/aspnet:8.0-noble AS base
+ARG BUILD_CONFIGURATION=Release
+
+FROM mcr.microsoft.com/dotnet/aspnet:8.0-bookworm-slim AS base
 WORKDIR /app
 EXPOSE 80
 
-# Install the agent (combinado e otimizado)
 RUN apt-get update \
  && apt-get install -y curl ca-certificates gnupg \
  && echo 'deb [signed-by=/etc/apt/keyrings/newrelic-apt.gpg] http://apt.newrelic.com/debian/ newrelic non-free' | tee /etc/apt/sources.list.d/newrelic.list \
@@ -12,7 +13,6 @@ RUN apt-get update \
  && apt-get clean \
  && rm -rf /var/lib/apt/lists/*
 
-# Enable the agent (agrupado)
 ENV CORECLR_ENABLE_PROFILING=1 \
 	CORECLR_PROFILER={36032161-FFC0-4B61-B559-F6C5D41BAE5A} \
 	CORECLR_NEWRELIC_HOME=/usr/local/newrelic-dotnet-agent \
@@ -23,14 +23,14 @@ ENV CORECLR_ENABLE_PROFILING=1 \
 FROM mcr.microsoft.com/dotnet/sdk:8.0-noble AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
-COPY ["src/FiapCloudGames.Api/FiapCloudGames.Api.csproj", "src/FiapCloudGames.Api/"]
-COPY ["src/FiapCloudGames.Application/FiapCloudGames.Application.csproj", "src/FiapCloudGames.Application/"]
-COPY ["src/FiapCloudGames.Domain/FiapCloudGames.Domain.csproj", "src/FiapCloudGames.Domain/"]
-COPY ["src/FiapCloudGames.Infrastructure/FiapCloudGames.Infrastructure.csproj", "src/FiapCloudGames.Infrastructure/"]
-RUN dotnet restore "src/FiapCloudGames.Api/FiapCloudGames.Api.csproj"
+COPY ["src/FiapCloudGames.Users.Api/FiapCloudGames.Users.Api.csproj", "src/FiapCloudGames.Users.Api/"]
+COPY ["src/FiapCloudGames.Users.Application/FiapCloudGames.Users.Application.csproj", "src/FiapCloudGames.Users.Application/"]
+COPY ["src/FiapCloudGames.Users.Domain/FiapCloudGames.Users.Domain.csproj", "src/FiapCloudGames.Users.Domain/"]
+COPY ["src/FiapCloudGames.Users.Infrastructure/FiapCloudGames.Users.Infrastructure.csproj", "src/FiapCloudGames.Users.Infrastructure/"]
+RUN dotnet restore "src/FiapCloudGames.Users.Api/FiapCloudGames.Users.Api.csproj"
 COPY . .
-WORKDIR "/src/src/FiapCloudGames.Api"
-RUN dotnet build "FiapCloudGames.Api.csproj" -c $BUILD_CONFIGURATION -o /app/build
+WORKDIR "/src/src/FiapCloudGames.Users.Api"
+RUN dotnet build "FiapCloudGames.Users.Api.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
 FROM build AS publish
 ARG BUILD_CONFIGURATION=Release
