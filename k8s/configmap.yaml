@@ -5,7 +5,7 @@ metadata:
   labels:
     app: fiap-cloud-games-users
 data:
-  ASPNETCORE_ENVIRONMENT: "Production"
+  ASPNETCORE_ENVIRONMENT: "Devlopment"
   ServiceBus__UseWebSockets: "false"
   Elasticsearch__IndexName: "users"
-  Elasticsearch__Uri: "<url-do-elasticsearch>"
+  Elasticsearch__Uri: "http://20.206.68.98:9200"
