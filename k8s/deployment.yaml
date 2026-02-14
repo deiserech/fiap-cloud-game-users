@@ -28,21 +28,26 @@ spec:
             - name: ConnectionStrings__DefaultConnection
               valueFrom:
                 secretKeyRef:
-                  name: users-api-secrets
-                  key: DefaultConnection
+                  name: fiap-shared-secret
+                  key: ConnectionStrings__DefaultConnection
             - name: ServiceBus__ConnectionString
               valueFrom:
                 secretKeyRef:
-                  name: users-api-secrets
-                  key: ServiceBusConnectionString
-            - name: Elasticsearch__Username
+                  name: fiap-shared-secret
+                  key: ServiceBus__ConnectionString
+            - name: JwtSettings__SecretKey
               valueFrom:
                 secretKeyRef:
-                  name: users-api-secrets
-                  key: ElasticsearchUsername
-            - name: Elasticsearch__Password
+                  name: fiap-shared-secret
+                  key: JwtSettings__SecretKey
+            - name: JwtSettings__Issuer
               valueFrom:
                 secretKeyRef:
-                  name: users-api-secrets
-                  key: ElasticsearchPassword
+                  name: fiap-shared-secret
+                  key: JwtSettings__Issuer
+            - name: JwtSettings__Audience
+              valueFrom:
+                secretKeyRef:
+                  name: fiap-shared-secret
+                  key: JwtSettings__Audience
 

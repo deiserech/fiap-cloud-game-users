@@ -21,7 +21,6 @@ variables:
   testsArtifactName: 'fiap-cloud-games-binaries'
   testsArtifactPath: '$(Pipeline.Workspace)/test-binaries'
   aksClusterName: 'fiapcloudgamest04-aks'
-  keyVaultName: 'kv-fiapcloudgamest04'
 
 stages:
   - stage: Build
