@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: fiap-cloud-games-users
-          image: fiapcloudgamesacr.azurecr.io/fiap-cloud-games-users:latest
+          image: fiapcloudgamest04acr.azurecr.io/fiap-cloud-games-users:latest
           ports:
             - containerPort: 80
           readinessProbe:
