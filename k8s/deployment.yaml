@@ -53,6 +53,16 @@ spec:
                 secretKeyRef:
                   name: fiap-shared-secret
                   key: ServiceBus__ConnectionString
+            - name: Elasticsearch__Uri
+              valueFrom:
+                configMapKeyRef:
+                  name: users-api-config
+                  key: Elasticsearch__Uri
+            - name: Elasticsearch__IndexName
+              valueFrom:
+                configMapKeyRef:
+                  name: users-api-config
+                  key: Elasticsearch__IndexName
             - name: JwtSettings__SecretKey
               valueFrom:
                 secretKeyRef:
