@@ -37,10 +37,10 @@ spec:
             successThreshold: 1
           resources:
             requests:
-              cpu: 100m
-              memory: 128Mi
+              cpu: 10m
+              memory: 256Mi
             limits:
-              cpu: 500m
+              cpu: 50m
               memory: 512Mi
           env:
             - name: ConnectionStrings__DefaultConnection
