@@ -9,6 +9,9 @@ spec:
     name: fiap-cloud-games-users
   minReplicas: 1
   maxReplicas: 5
+  behavior:
+    scaleDown:
+      stabilizationWindowSeconds: 60
   metrics:
     - type: Resource
       resource:

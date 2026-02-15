@@ -53,6 +53,11 @@ spec:
                 secretKeyRef:
                   name: fiap-shared-secret
                   key: ServiceBus__ConnectionString
+            - name: NEW_RELIC_LICENSE_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: fiap-shared-secret
+                  key: NEW_RELIC_LICENSE_KEY
             - name: Elasticsearch__Uri
               valueFrom:
                 configMapKeyRef:
